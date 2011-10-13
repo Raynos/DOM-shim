@@ -4,6 +4,6 @@ Work in progress,
 
 Experimental!!
 
- - .element
- - document.getElementById
- - document.addEventListener
+ - Element.prototype.children
+ - document.getElementById BUG with returning elements by name
+ - document.addEventListener BUG with forcing 3rd parameter to be set
