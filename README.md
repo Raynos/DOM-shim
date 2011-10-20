@@ -4,6 +4,4 @@ Work in progress,
 
 Experimental!!
 
- - .element
- - document.getElementById
- - document.addEventListener
+ - Some functionality from Node
