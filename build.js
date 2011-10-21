@@ -22,4 +22,3 @@ function makeFile(loc) {
 fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeFile(path.join("src")));
 fs.writeFileSync(path.join("test", "tests.js"), makeFile(path.join("test", "suites")));
 console.log("done");
-

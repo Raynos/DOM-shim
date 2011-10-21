@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var Node = window.Node,
 	NodeProto = window.Node.prototype,
 	Element = window.Element,
