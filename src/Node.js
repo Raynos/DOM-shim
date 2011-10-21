@@ -32,6 +32,12 @@ function recursivelyWalk(nodes, cb) {
 	}
 }
 
+function throwDOMException(code) {
+	var ex = Object.create(DOMException.prototype);
+	ex.code = code;
+	throw ex;
+}
+
 var nodeConsts = {
 	"ELEMENT_NODE": 1,
 	"ATTRIBUTE_NODE": 2,
@@ -335,9 +341,7 @@ function _replaceData(node, offset, count, data) {
 	var length = node.length;
 	var oldData = node.data;
 	if (offset > length) {
-		var ex = new DOMException();
-		ex.code = DOMException.INDEX_SIZE_ERR;
-		throw ex;
+		throwDOMException(DOMException.INDEX_SIZE_ERR);
 	}
 	if (offset + count > length) {
 		count = length - offset;
@@ -418,7 +422,93 @@ if (!NodeProto.textContent) {
 	});
 }
 
-// TODO: Implement textContent
+function _preInsertDocumentFragment (node, parent, child) {
+	var hasEle = false;
+	for (var i = 0, len = node.childNodes.length; i < len; i++) {
+		var el = node.childNodes[i];
+		if (el instanceof Text) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		} else if (el instanceof Element) {
+			if (hasEle) {
+				throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+			} else {
+				hasEle = true;
+			}
+		}
+	}
+}
+
+function _preInsertElement(node, parent, child) {
+	// TODO: Throw error based on pre-insert 4. 3. (doctype)
+}
+
+function _preInsertDocumentType(node, parent, child) {
+	var children = parent.childNodes,
+		pos = 0,
+		firstEl = -1;
+
+	for (var i = 0, len = children.length; i < len; i++) {
+		var el = children[i];
+		if (el instanceof DocumentType) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		}
+		if (el.isSameNode(child)) {
+			pos = i;
+		}
+		if (el instanceof Element) {
+			firstEl === -1 && firstEl = i;
+		}
+	}
+	if (firstEl < pos || child === null && firstEl > -1) {
+		throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+	}
+}
+
+function _preInsert(node, parent, child) {
+	if (child && !child.parentNode.isSameNode(parent)) {
+		throwDOMException(DOMException.NOT_FOUND_ERR);
+	}
+	var parentOfParent = parent;
+	do {
+		if (parentOfParent.isSameNode(node)) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		}
+		parentOfParent = parent.parentNode;
+	} while (parentOfParent != null)
+
+	var condition = parent instanceof Document || parent instanceof DocumentFragment 
+		|| parent instanceof Element;
+	if (!condition) {
+		throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+	}
+
+	if (parent instanceof Document) {
+		if (node instanceof Text || node instanceof Document) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		}
+		if (node instanceof DocumentFragment) {
+			_preInsertDocumentFragment(node, parent, child);
+		}
+		if (node instanceof Element) {
+			_preInsertElement(node, parent, child);
+			
+		}
+		if (node instanceof DocumentType) {
+			_preInsertDocumentType(node, parent, child);
+		}
+	}
+	if (parent instanceof DocumentFragment || parent instanceof Element) {
+		if (node instanceof Document || node instanceof DocumentType) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		}
+	}
+	parent.ownerDocument.adoptNode(node);
+	_insert(node, parent, child);
+}
+
+function _insert(node, parent, child) {
+	// TODO: implement insert
+}
 
 // TODO: Imeplement insertBefore
 
