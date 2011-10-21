@@ -2,10 +2,10 @@
 	// TODO: Test ProcessingInstruction
 	return {
 		"el": document.createElement("p"),
-		"txt": document.createTextNode(),
-		"com": document.createComment(),
+		"txt": document.createTextNode(""),
+		"com": document.createComment(""),
 		"doc": document,
-		"doctype": document.implementation.createDocumentType("html5"),
+		"doctype": document.implementation.createDocumentType("html5","",""),
 		"docfrag": document.createDocumentFragment(),
 	};
 };
@@ -112,7 +112,31 @@ suites["Test Node"] = {
 		nodes.docfrag.appendChild(nodes.el);
 		nodes.docfrag.appendChild(nodes.txt);
 		t.equal(nodes.docfrag.contains(nodes.el), true, "docfrag contains el");
+		console.log(nodes.el.contains(nodes.txt));
 		t.equal(nodes.el.contains(nodes.txt), false, "el does not contains txt");
+		t.done();
+	},
+	"test nodeValue": function (t) {
+		var nodes = makeNodes();
+		t.equal(nodes.docfrag.nodeValue, null, "nodeValue is null for docfrag");
+		nodes.docfrag.nodeValue = 42;
+		t.equal(nodes.docfrag.nodeValue, null, "nodeValue is still null for docfrag");
+		t.equal(nodes.txt.nodeValue, "", "nodeValue default for txt is empty string");
+		nodes.txt.nodeValue = 42;
+		t.equal(nodes.txt.nodeValue, 42, "nodeValue is set properly for txt nodes");
+		t.done();
+	},
+	"test textContent": function (t) {
+		var nodes = makeNodes();
+		t.equal(nodes.txt.textContent, "", "textContent for txt node defaults to empty string");
+		nodes.txt.textContent = "foo";
+		t.equal(nodes.txt.textContent, "foo", "textContent for txt node is properly set");
+		t.equal(nodes.el.textContent, "", "textContent for el node is empty string");
+		nodes.el.textContent = "foo";
+		t.ok(nodes.el.firstChild, "el has a child");
+		t.equal(nodes.el.firstChild.nodeType, Node.TEXT_NODE, "child is a text node");
+		t.equal(nodes.el.firstChild.textContent, "foo", "text content of the child node is set");
+		t.equal(nodes.el.textContent, "foo", "text content of the el is set");
 		t.done();
 	}
 };})();})(window, document);

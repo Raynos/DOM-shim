@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 var Node = window.Node,
 	NodeProto = window.Node.prototype,
 	Element = window.Element,
@@ -160,7 +160,7 @@ function _hasChildNodes() {
 }
 
 if (!NodeProto.hasChildNodes) {
-	Object.definePropert(NodeProto, "hasChildNodes", {
+	Object.defineProperty(NodeProto, "hasChildNodes", {
 		value: _hasChildNodes,
 		configurable: true,
 		enumerable: true
@@ -319,6 +319,7 @@ function _contains(other) {
 	) {
 		return true;
 	}
+	return false;
 }
 
 if (!NodeProto.contains) {
@@ -330,7 +331,92 @@ if (!NodeProto.contains) {
 	});
 }
 
-// TODO: Implement nodeValue
+function _replaceData(node, offset, count, data) {
+	var length = node.length;
+	var oldData = node.data;
+	if (offset > length) {
+		var ex = new DOMException();
+		ex.code = DOMException.INDEX_SIZE_ERR;
+		throw ex;
+	}
+	if (offset + count > length) {
+		count = length - offset;
+	}
+	var before = oldData.substring(offset);
+	before += data;
+	var after = oldData.substring(offset + count);
+	before += after;
+	node.data = before;
+	// TODO: Fix ranges offset pointers
+}
+
+function _getNodeValue() {
+	var condition = this instanceof Text || this instanceof Comment
+		|| this instanceof ProcessingInstruction;
+	if (condition) {
+		return this.data;
+	}
+	return null;
+}
+
+function _setNodeValue(value) {
+	var condition = this instanceof Text || this instanceof Comment
+		|| this instanceof ProcessingInstruction;
+	if (condition) {
+		_replaceData(this, 0, value.length, value);
+	}
+}
+
+if (!NodeProto.nodeValue) {
+	Object.defineProperty(NodeProto, "nodeValue", {
+		get: _getNodeValue,
+		set: _setNodeValue,
+		enumerable: true, 
+		configurable: true
+	});
+}
+
+function _getTextContent() {
+	var condition = this instanceof Text || this instanceof Comment
+		|| this instanceof ProcessingInstruction;
+	if (condition) {
+		return this.data;
+	} else if (this instanceof Element || this instanceof DocumentFragment) {
+		var data = "";
+		recursivelyWalk(this.childNodes, function (node) {
+			if (node instanceof Text) {
+				data += node.data;
+			}
+		});
+		return data;
+	}
+	return null;
+}
+
+function _setTextContent(value) {
+	var condition = this instanceof Text || this instanceof Comment
+		|| this instanceof ProcessingInstruction;
+	if (condition) {
+		_replaceData(this, 0, value.length, value);
+	} else if (this instanceof Element || this instanceof DocumentFragment) {
+		for (var i = 0, len = this.childNodes.length; i < len; i++) {
+			this.removeChild(this.childNodes[i]);
+		}
+		if (value.length > 0) {
+			var txt = document.createTextNode(value);
+			this.appendChild(txt);
+		}
+	}
+}
+
+if (!NodeProto.textContent) {
+	Object.defineProperty(NodeProto, "textContent", {
+		get: _getTextContent,
+		set: _setTextContent,
+		enumerable: true,
+		configurable: true
+	});
+}
 
 // TODO: Implement textContent
 
