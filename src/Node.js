@@ -1,12 +1,35 @@
 var Node = window.Node,
 	NodeProto = window.Node.prototype,
+	Element = window.Element,
 	ElementProto = window.Element.prototype,
+	Text = window.Text,
 	TextProto = window.Text.prototype,
+	Comment = window.Comment,
 	CommentProto = window.Comment.prototype,
+	ProcessingInstruction = window.ProcessingInstruction,
 	ProcessingInstructionProto = window.ProcessingInstruction.prototype,
+	DocumentFragment = window.DocumentFragment,
 	DocumentFragmentProto = window.DocumentFragment.prototype,
+	DocumentType = window.DocumentType,
 	DocumentTypeProto = window.DocumentType.prototype,
+	Document = window.Document,
 	DocumentProto = window.Document.prototype;
+
+function recursivelyWalk(nodes, cb) {
+	for (var i = 0, len = nodes.length; i < len; i++) {
+		var node = nodes[i];
+		var ret = cb(node);
+		if (ret) {
+			return ret;
+		}
+		if (node.childNodes && node.childNodes.length > 0) {
+			var ret = recursivelyWalk(node.childNodes, cb);
+			if (ret) {
+				return ret;
+			}
+		}
+	}
+}
 
 var nodeConsts = {
 	"ELEMENT_NODE": 1,
@@ -30,16 +53,16 @@ var nodeConsts = {
 };
 
 function _addConstsToNode(constName) {
-	if (!Node[constsName]) {
+	if (!Node[constName]) {
 		Object.defineProperty(Node, constName, {
-			value: nodeConsts[constsName],
+			value: nodeConsts[constName],
 			configurable: true,
 			enumerable: true
 		});
 	}
 }
 
-Object.keys(nodeConts).forEach(_addConstsToNode);
+Object.keys(nodeConsts).forEach(_addConstsToNode);
 
 if (!NodeProto.ownerDocument) {
 	Object.defineProperty(NodeProto, "ownerDocument", {
@@ -50,19 +73,19 @@ if (!NodeProto.ownerDocument) {
 }
 
 function _getNodeType() {
-	if (ElementProto.isPrototypeOf(this)) {
+	if (this instanceof Element) {
 		return Node.ELEMENT_NODE;
-	} else if (TextProto.isPrototypeOf(this)) {
+	} else if (this instanceof Text) {
 		return Node.TEXT_NODE;
-	} else if (ProcessingInstructionProto.isPrototypeOf(this)) {
+	} else if (this instanceof ProcessingInstruction) {
 		return Node.PROCESSING_INSTRUCTION_NODE;
-	} else if (CommentProto.isPrototypeOf(this)) {
+	} else if (this instanceof Comment) {
 		return Node.COMMENT_NODE;
-	} else if (DocumentProto.isPrototypeOf(this)) {
+	} else if (this instanceof Document) {
 		return Node.DOCUMENT_NODE;
-	} else if (DocumentTypeProto.isPrototypeOf(this)) {
+	} else if (this instanceof DocumentType) {
 		return Node.DOCUMENT_TYPE_NODE;
-	} else if (DocumentFragmentProto.isPrototypeOf(this)) {
+	} else if (this instanceof DocumentFragment) {
 		return Node.DOCUMENT_FRAGMENT_NODE;
 	}
 }
@@ -76,19 +99,19 @@ if (!NodeProto.nodeType) {
 }
 
 function _getNodeName() {
-	if (ElementProto.isPrototypeOf(this)) {
+	if (this instanceof Element) {
 		return this.tagName;
-	} else if (TextProto.isPrototypeOf(this)) {
+	} else if (this instanceof Text) {
 		return "#text";
-	} else if (ProcessingInstructionProto.isPrototypeOf(this)) {
+	} else if (this instanceof ProcessingInstruction) {
 		return this.target
-	} else if (CommentProto.isPrototypeOf(this)) {
+	} else if (this instanceof Comment) {
 		return "#comment";
-	} else if (DocumentProto.isPrototypeOf(this)) {
+	} else if (this instanceof Document) {
 		return "#document";
-	} else if (DocumentTypeProto.isPrototypeOf(this)) {
+	} else if (this instanceof DocumentType) {
 		return this.name;
-	} else if (DocumentFragmentProto.isPrototypeOf(this)) {
+	} else if (this instanceof DocumentFragment) {
 		return "#document-fragment";
 	}
 }
@@ -214,3 +237,118 @@ if (!NodeProto.nextSibling) {
 		configurable: true
 	});
 }
+
+function _testNodeForComparePosition(node, other) {
+	if (node.isSameNode(other)) {
+		return true;
+	}
+}
+
+function _compareDocumentPosition(other) {
+	function _identifyWhichIsFirst(node) {
+		if (node.isSameNode(other)) {
+			return "other";
+		} else if (node.isSameNode(reference)) {
+			return "reference";
+		}
+	}
+
+	var reference = this,
+		referenceTop = this,
+		otherTop = other;
+
+	if (this.isSameNode(other)) {
+		return 0;
+	}
+	while (referenceTop.parentNode) {
+		referenceTop = referenceTop.parentNode;
+	}
+	while (otherTop.parentNode) {
+		otherTop = otherTop.parentNode;
+	}
+
+	if (!referenceTop.isSameNode(otherTop)) {
+		return Node.DOCUMENT_POSITION_DISCONNECTED;
+	}
+
+	var children = reference.childNodes;
+	var ret = recursivelyWalk(
+		children,
+		_testNodeForComparePosition.bind(null, other)
+	);
+	if (ret) {
+		return Node.DOCUMENT_POSITION_CONTAINED_BY +
+			Node.DOCUMENT_POSITION_FOLLOWING;
+	}
+
+	var children = other.childNodes;
+	var ret = recursivelyWalk(
+		children, 
+		_testNodeForComparePosition.bind(null, reference)
+	);
+	if (ret) {
+		return Node.DOCUMENT_POSITION_CONTAINS +
+			Node.DOCUMENT_POSITION_PRECEDING;
+	}
+
+	var ret = recursivelyWalk(
+		[referenceTop],
+		_identifyWhichIsFirst
+	);
+	if (ret === "other") {
+		return Node.DOCUMENT_POSITION_PRECEDING;
+	} else {
+		return Node.DOCUMENT_POSITION_FOLLOWING;
+	}
+}
+
+if (!NodeProto.compareDocumentPosition) {
+	Object.defineProperty(NodeProto, "compareDocumentPosition", {
+		value: _compareDocumentPosition,
+		enumerable: true,
+		configurable: true,
+		writable: true
+	});
+}
+
+function _contains(other) {
+	var comparison = this.compareDocumentPosition(other);
+	if (comparison === 0 || 
+		comparison & Node.DOCUMENT_POSITION_CONTAINED_BY
+	) {
+		return true;
+	}
+}
+
+if (!NodeProto.contains) {
+	Object.defineProperty(NodeProto, "contains", {
+		value: _contains,
+		enumerable: true,
+		configurable: true,
+		writable: true
+	});
+}
+
+// TODO: Implement nodeValue
+
+// TODO: Implement textContent
+
+// TODO: Imeplement insertBefore
+
+// TODO: Implement appendChild
+
+// TODO: Implement replaceChild
+
+// TODO: Implement removeChild
+
+// TODO: Implement cloneNode
+
+// TODO: Implement isSameNode
+
+// TODO; Implement isEqualNode
+
+// TODO: Implement lookupPrefix
+
+// TODO: Implement lookupNamespaceURI
+
+// TODO: Implement isDefaultNamespace

@@ -1,4 +1,3 @@
-(function () {
 /*
 var toArray = function (obj) {
     var arr = [];
@@ -60,5 +59,3 @@ if (addEventListenerIsBroken) {
         Element.prototype.addEventListener = eventListener;
 }
 */
-})();
-
