@@ -127,5 +127,15 @@ window.Node = Node;
 window.ProcessingInstruction = ProcessingInstruction;
 window.Text = Text;
 
+var HTMLNames = ["HTMLDocument", "HTMLLinkElement", "HTMLElement", "HTMLHtmlElement", "HTMLDivElement", "HTMLAnchorElement", 
+"HTMLSelectElement", "HTMLOptionElement", "HTMLInputElement", "HTMLHeadElement", "HTMLSpanElement", "XULElement",
+"HTMLBodyElement", "HTMLTableElement", "HTMLTableCellElement", "HTMLTextAreaElement", "HTMLScriptElement", 
+"HTMLAudioElement", "HTMLMediaElement", "HTMLParagraphElement", "HTMLButtonElement", "HTMLLIElement", "HTMLUListElement", 
+"HTMLFormElement", "HTMLHeadingElement", "HTMLImageElement", "HTMLStyleElement", "HTMLTableRowElement", 
+"HTMLTableSectionElement", "HTMLBRElement"];
+
 // extra locals
-var HTMLDocument = window.HTMLDocument;
+var HTMLEls = {};
+HTMLNames.forEach(function (name) {
+	HTMLEls[name] = window[name];
+});

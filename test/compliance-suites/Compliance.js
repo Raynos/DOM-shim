@@ -147,7 +147,7 @@ var testNodeCompliance = function (node, t, name) {
 		"isEqualNode",
 		"lookupPrefix",
 		"lookupNamespaceURI",
-		"isDefaultnamespace"
+		"isDefaultNamespace"
 	].forEach(function (method) {
 		_hasMethod(node, method, t, name);	
 	});

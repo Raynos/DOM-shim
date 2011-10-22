@@ -126,10 +126,62 @@ suites["Test Node"] = {
 		t.equal(nodes.el.textContent, "foo", "text content of the el is set");
 		t.done();
 	},
+	"test insertBefore": function (t) {
+		var nodes = makeNodes();
+		nodes.docfrag.appendChild(nodes.txt);
+		nodes.docfrag.insertBefore(nodes.el, nodes.txt);
+		t.equal(nodes.el, nodes.docfrag.childNodes[0], "el is first child of domfrag");
+		nodes.docfrag.insertBefore(nodes.el2, nodes.txt);
+		t.equal(nodes.el2, nodes.docfrag.childNodes[1], "el2 is second child of domfrag");
+		t.done();
+	},
+	"test appendChild": function (t) {
+		var nodes = makeNodes();
+		nodes.docfrag.appendChild(nodes.el);
+		t.equal(nodes.el, nodes.docfrag.childNodes[0], "el was appended correctly");
+		nodes.docfrag.appendChild(nodes.el2);
+		t.equal(nodes.el2, nodes.docfrag.childNodes[1], "el2 was appended correctly");
+		t.done();
+	},
+	"test replaceChild": function (t) {
+		var nodes = makeNodes();
+		nodes.docfrag.appendChild(nodes.el);
+		nodes.docfrag.replaceChild(nodes.txt, nodes.el);
+		t.equal(nodes.txt, nodes.docfrag.childNodes[0], "txt node was correctly replaced");
+		nodes.docfrag.appendChild(nodes.el2);
+		nodes.docfrag.replaceChild(nodes.el, nodes.el2);
+		t.equal(nodes.el, nodes.docfrag.childNodes[1], "el node was correctly replaced into docfrag");
+		t.done();
+	},
+	"test removeChild": function (t) {
+		var nodes = makeNodes();
+		nodes.docfrag.appendChild(nodes.el);
+		t.equal(nodes.docfrag.hasChildNodes(), true, "docfrag has children");
+		nodes.docfrag.removeChild(nodes.el);
+		t.equal(nodes.docfrag.hasChildNodes(), false, "node was correctly removed");
+		t.done();
+	},
+	"test cloneNode": function (t) {
+		var nodes = makeNodes();
+		try {
+			var clone = nodes.el.cloneNode();	
+		} catch (e) {
+			console.log(e);
+		}
+		
+		t.equal(clone.isEqualNode(nodes.el), true, "the clone is the same");
+		t.done(); 
+	},
 	"test isSameNode": function (t) {
 		var nodes = makeNodes();
 		t.equal(nodes.txt.isSameNode(nodes.el), false, "nodes should be different");
 		t.equal(nodes.el.isSameNode(nodes.el), true, "nodes should be the same");
 		t.done();
+	},
+	"test isEqualNode": function (t) {
+		var nodes = makeNodes();
+		var clone = nodes.el.cloneNode();
+		t.equal(clone.isEqualNode(nodes.el), true, "the clone is the same");
+		t.done(); 
 	}
 };

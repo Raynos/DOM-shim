@@ -376,6 +376,38 @@ function _remove(node, parent) {
 	children.length = len - 1;
 }
 
+function _clone(node, document, deep) {
+	document = document || node.ownerDocument;
+	var copy;
+	if (node.nodeType === Node.ELEMENT_NODE) {
+		copy = document.createElementNS(node.namespaceURI, node.prefix + ":" + node.nodeName);
+		for (var i = 0, len = node.attributes.length; i < len; i++) {
+			var attr = node.attributes[i];
+			copy.setAttribute(attr.name, attr.value);
+		}
+	} else if (node.nodeType === Node.DOCUMENT_NODE) {
+		copy = document.implementation.createDocument("", "", null);
+	} else if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+		copy = document.createDocumentFragment();
+	} else if (node.nodeType === Node.DOCUMENT_TYPE_NODE) {
+		copy = document.implementation.createDocumentType(node.name, node.publicId, node.systemId);
+	} else if (node.nodeType === Node.COMMENT_NODE) {
+		copy = document.createComment(node.data);
+	} else if (node.nodeType === Node.TEXT_NODE) {
+		copy = document.createTextNode(node.data);
+	} else if (node.nodeType === Node.PROCESSING_INSTRUCTION_NODE) {
+		copy = document.createProcessingInstruction(node.target, node.data);
+	}
+	// TODO: other cloning steps from other specifications
+	if (deep) {
+		var children = node.childNodes;
+		for (var i = 0, len = children.length; i < len; i++) {
+			copy.appendChild(children[i].cloneNode(node, document, deep));
+		}
+	}
+	return copy;
+}
+
 function _insertBefore(node, child) {
 	return _preInsert(node, this, child);
 }
@@ -392,8 +424,159 @@ function _removeChild(child) {
 	return _remove(child, node);
 }
 
+function _cloneNode(flag) {
+	if (flag === undefined) {
+		flag = true;
+	}
+	return _clone(this, undefined, flag);
+}
+
 function _isSameNode(node) {
 	return this === node;
+}
+
+function _isEqualNode(node) {
+	if (node === null) {
+		return false;
+	}
+	if (node.nodeType !== this.nodeType) {
+		return false;
+	}
+	if (node.nodeType === Node.DOCUMENT_TYPE_NODE) {
+		if (this.name !== node.name ||
+			this.publicId !== node.publicId ||
+			this.systemId !== node.systemId 
+		) {
+			return false;
+		}
+	}
+	if (node.nodeType === Node.ELEMENT_NODE) {
+		if (this.namespaceURI !== node.namespaceURI ||
+			this.prefix !== node.prefix ||
+			this.localName !== node.localName
+		) {
+			return false;
+		}
+		for (var i = 0, len = this.attributes.length; i < len; i++) {
+			var attr = this.attributes[length];
+			var nodeAttr = node.getAttributeNS(attr.namespaceURI, attr.localName);
+			if (nodeAttr === null || nodeAttr.value !== attr.value) {
+				return false;
+			}
+		}
+	}
+	if (node.nodeType === Node.PROCESSING_INSTRUCTION_NODE) {
+		if (this.target !== node.target || this.data !== node.data) {
+			return false;		
+		}	
+	}
+	if (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.COMMENT_NODE) {
+		if (this.data !== node.data) {
+			return false;
+		}
+	}
+	if (node.childNodes.length !== this.childNodes.length) {
+		return false;
+	}
+	for (var i = 0, len = node.childNodes.length; i < len; i++) {
+		var isEqual = node.childNodes[i].isEqualNode(this.childNodes[i]);
+		if (isEqual === false) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function _locateNamespacePrefix(el, namespace) {
+	if (el.namespaceURI === namespace) {
+		if (el.prefix == null) {
+			return null;
+		}
+		return el.prefix;
+	}
+	var attrs = el.attributes;
+	for (var i = 0, len = attrs.length; i < len; i++) {
+		var attr = attrs[i];
+		if (attr.prefix === "xmlns" && attr.value === namespace) {
+			return attr.localname;
+		}
+	}
+	var parent = node.parentElement
+	if (parent !== null) {
+		return _locateNamespacePrefix(parent, namespace);
+	}
+	return null;
+}
+
+function _locateNamespace(node, prefix) {
+	if (node.nodeType === Node.ELEMENT_NODE) {
+		if (node.namespaceURI !== null && node.prefix === prefix) {
+			return node.namespaceURI;
+		}
+		var attrs = node.attributes;
+		for (var i = 0, len = attrs.length; i < len; i++) {
+			var attr = attrs[i];
+			if ((attr.prefix === "xmlns" && attr.localname === prefix) ||
+				(attr.prefix === null && attr.localname === "xmlns")
+			) {
+				return attr.value || null;
+			}
+		}
+		var parent = node.parentElement;
+		if (parent !== null) {
+			return _locateNamespace(parent, prefix)
+		}
+		return null;
+	} else if (node.nodeType === Node.DOCUMENT_NODE) {
+		var docElem = node.documentElement;
+		if (docElem) {
+			return _locateNamespace(docElem, prefix);
+		}
+		return null;
+	} else if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE ||
+		node.nodeType === Node.DOCUMENT_TYPE_NODE
+	) {
+		return null;
+	} else {
+		var parent = node.parentElement;
+		if (parent !== null) {
+			return _locateNamespace(parent, prefix);
+		}
+		return null;
+	}
+}
+
+function _lookupPrefix(namespace) {
+	if (namespace === null || namespace === "") {
+		return null;
+	}
+	if (this.nodeType === Node.ELEMENT_NODE) {
+		return _locateNamespacePrefix(this, namespace);
+	} else if (this.nodeType === Node.DOCUMENT_NODE) {
+		return _locateNamespacePrefix(this.documentElement, namespace);
+	} else if (this.nodeType === Node.DOCUMENT_TYPE_NODE ||
+		this.nodeType === Node.DOCUMENT_FRAGMENT_NODE
+	) {
+		return null
+	} else {
+		var parent = this.parentElement;
+		if (parent !== null) {
+			return _locateNamespacePrefix(parent, namespace);
+		}
+		return null;
+	}
+}
+
+function _lookupNamespaceURI(prefix) {
+	return _locateNamespace(this, prefix);
+}
+
+function _isDefaultNamespace(namespace) {
+	if (namespace === "") {
+		namespace = null;
+	}
+	var defaultNamespace = _locateNamespace(this, null);
+	return defaultNamespace === namespace;
 }
 
 var nodeProps = {
@@ -424,6 +607,21 @@ var nodeProps = {
 	},
 	"removeChild": {
 		value: _removeChild
+	},
+	"cloneNode": {
+		value: _cloneNode
+	},
+	"isEqualNode": {
+		value: _isEqualNode
+	},
+	"lookupPrefix": {
+		value: _lookupPrefix
+	},
+	"lookupNamespaceURI": {
+		value: _locateNamespace
+	},
+	"isDefaultNamespace": {
+		value: _isDefaultNamespace
 	}
 };
 
