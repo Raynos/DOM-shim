@@ -29,7 +29,13 @@ fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeOrderedFile(
 	],
 	"src"
 ));
-fs.writeFileSync(path.join("test", "tests.js"), makeFile(path.join("test", "test-suites")));
+fs.writeFileSync(path.join("test", "tests.js"), makeOrderedFile(
+	[
+		"Helpers.js",
+		"Node.js"
+	],
+	path.join("test", "test-suites")
+));
 fs.writeFileSync(path.join("test", "compliance.js"), makeFile(path.join("test", "compliance-suites")));
 
 

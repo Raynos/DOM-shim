@@ -67,9 +67,9 @@ function addGetterSetterToProto(props, proto) {
 		// fix for IE8
 		if (proto === NodeProto && !propsBlackListForIE[name]) {
 			// Fix docfrags
-			if (HTMLDocument && !HTMLDocument.prototype.constructor) {
+			if (HTMLEls.HTMLDocument && !HTMLEls.HTMLDocument.prototype.constructor) {
 				addGetterSetterToProtoForEach(
-					props, HTMLDocument.prototype, name);
+					props, HTMLEls.HTMLDocument.prototype, name);
 			}
 			// fix text
 			addGetterSetterToProtoForEach(props, Text.prototype, name);
@@ -115,9 +115,9 @@ function addPropsToProto(props, proto) {
 		// fix for IE8
 		if (proto === NodeProto && !propsBlackListForIE[name]) {
 			// Fix docfrags
-			if (HTMLDocument && !HTMLDocument.prototype.constructor) {
+			if (HTMLEls.HTMLDocument && !HTMLEls.HTMLDocument.prototype.constructor) {
 				addPropsToProtoForEach(
-					props, HTMLDocument.prototype, name);
+					props, HTMLEls.HTMLDocument.prototype, name);
 			}
 			// fix text
 			addPropsToProtoForEach(props, Text.prototype, name);
