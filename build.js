@@ -4,21 +4,34 @@ var fs = require("fs"),
 process.chdir(__dirname);
 
 function makeFile(loc) {
-	var code = ";(function (window, document, undefined) {";
+	return makeOrderedFile(fs.readdirSync(loc), loc);
+}
 
-	var start = ";(function () {";
-	var end = "})();";
+function makeOrderedFile(files, loc) {
+	var code = ";(function (window, document, undefined) { \n";
 
-	var files = fs.readdirSync(loc);
 	files.forEach(function (filename) {
 		var file = fs.readFileSync(path.join(loc, filename));
-		code += start + file.toString() + end;
+		code += file.toString() + "\n";
 	});
 
 	code += "})(window, document);";
 	return code;
 }
 
-fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeFile(path.join("src")));
-fs.writeFileSync(path.join("test", "tests.js"), makeFile(path.join("test", "suites")));
+fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeOrderedFile(
+	[	
+		"Variables.js",
+		"Helpers.js",
+		"document.js",
+		"Node.js",
+		"bugs.js"
+	],
+	"src"
+));
+fs.writeFileSync(path.join("test", "tests.js"), makeFile(path.join("test", "test-suites")));
+fs.writeFileSync(path.join("test", "compliance.js"), makeFile(path.join("test", "compliance-suites")));
+
+
+
 console.log("done");

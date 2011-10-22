@@ -1,15 +1,3 @@
-var makeNodes = function () {
-	// TODO: Test ProcessingInstruction
-	return {
-		"el": document.createElement("p"),
-		"txt": document.createTextNode(""),
-		"com": document.createComment(""),
-		"doc": document,
-		"doctype": document.implementation.createDocumentType("html5","",""),
-		"docfrag": document.createDocumentFragment(),
-	};
-};
-
 suites["Test Node"] = {
 	"test nodeType": function (t) {
 		var nodes = makeNodes();
@@ -42,8 +30,8 @@ suites["Test Node"] = {
 		var nodes = makeNodes();
 		nodes.docfrag.appendChild(nodes.el);
 		t.equal(nodes.el.parentElement, null, "parentElement is null for non-element");
-		nodes.el.appendChild(nodes.txt);
-		t.equal(nodes.txt.parentElement, nodes.el, "parentElement is an element");
+		nodes.el.appendChild(nodes.el2);
+		t.equal(nodes.el2.parentElement, nodes.el, "parentElement is an element");
 		t.done();
 	},
 	"test hasChildNodes": function (t) {
@@ -112,7 +100,6 @@ suites["Test Node"] = {
 		nodes.docfrag.appendChild(nodes.el);
 		nodes.docfrag.appendChild(nodes.txt);
 		t.equal(nodes.docfrag.contains(nodes.el), true, "docfrag contains el");
-		console.log(nodes.el.contains(nodes.txt));
 		t.equal(nodes.el.contains(nodes.txt), false, "el does not contains txt");
 		t.done();
 	},
@@ -137,6 +124,12 @@ suites["Test Node"] = {
 		t.equal(nodes.el.firstChild.nodeType, Node.TEXT_NODE, "child is a text node");
 		t.equal(nodes.el.firstChild.textContent, "foo", "text content of the child node is set");
 		t.equal(nodes.el.textContent, "foo", "text content of the el is set");
+		t.done();
+	},
+	"test isSameNode": function (t) {
+		var nodes = makeNodes();
+		t.equal(nodes.txt.isSameNode(nodes.el), false, "nodes should be different");
+		t.equal(nodes.el.isSameNode(nodes.el), true, "nodes should be the same");
 		t.done();
 	}
 };
