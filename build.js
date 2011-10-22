@@ -9,7 +9,7 @@ function makeFile(loc) {
 	var files = fs.readdirSync(loc);
 	files.forEach(function (filename) {
 		var file = fs.readFileSync(path.join(loc, filename));
-		code += file.toString();
+		code += file.toString() + "\n";
 	});
 
 	code += "})(window, document);";
@@ -17,5 +17,6 @@ function makeFile(loc) {
 }
 
 fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeFile(path.join("src")));
-fs.writeFileSync(path.join("test", "tests.js"), makeFile(path.join("test", "suites")));
+fs.writeFileSync(path.join("test", "tests.js"), makeFile(path.join("test", "test-suites")));
+fs.writeFileSync(path.join("test", "compliance.js"), makeFile(path.join("test", "compliance-suites")));
 console.log("done");
