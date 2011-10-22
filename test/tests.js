@@ -1,16 +1,4 @@
-;(function (window, document, undefined) {var makeNodes = function () {
-	// TODO: Test ProcessingInstruction
-	return {
-		"el": document.createElement("p"),
-		"el2": document.createElement("p"),
-		"txt": document.createTextNode(""),
-		"com": document.createComment(""),
-		"doc": document,
-		"doctype": document.implementation.createDocumentType("html5","",""),
-		"docfrag": document.createDocumentFragment(),
-	};
-};
-
+;(function (window, document, undefined) {
 suites["Test Node"] = {
 	"test nodeType": function (t) {
 		var nodes = makeNodes();
@@ -112,10 +100,7 @@ suites["Test Node"] = {
 		var nodes = makeNodes();
 		nodes.docfrag.appendChild(nodes.el);
 		nodes.docfrag.appendChild(nodes.txt);
-		console.log("docfrag contains");
 		t.equal(nodes.docfrag.contains(nodes.el), true, "docfrag contains el");
-		console.log("el contains");
-		console.log(nodes.el.contains);
 		t.equal(nodes.el.contains(nodes.txt), false, "el does not contains txt");
 		t.done();
 	},
@@ -148,4 +133,18 @@ suites["Test Node"] = {
 		t.equal(nodes.el.isSameNode(nodes.el), true, "nodes should be the same");
 		t.done();
 	}
-};})(window, document);
+};
+var makeNodes = function () {
+	// TODO: Test ProcessingInstruction
+	return {
+		"el": document.createElement("p"),
+		"el2": document.createElement("p"),
+		"txt": document.createTextNode(""),
+		"com": document.createComment(""),
+		"doc": document,
+		"doctype": document.implementation.createDocumentType("html5", "", ""),
+		"docfrag": document.createDocumentFragment()
+	};
+};
+
+})(window, document);

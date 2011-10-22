@@ -5,7 +5,6 @@
 	el.appendChild(txt);
 
 	try {
-		console.log("calling contains");
 		el.contains(txt);
 	} catch (e) {
 		// The contains method fails on text nodes in IE8

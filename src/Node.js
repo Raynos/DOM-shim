@@ -109,7 +109,6 @@ function _compareDocumentPosition(other) {
 }
 
 function _contains(other) {
-	console.log("insides contains");
 	var comparison = this.compareDocumentPosition(other);
 	if (comparison === 0 || 
 		comparison & Node.DOCUMENT_POSITION_CONTAINED_BY
@@ -123,9 +122,9 @@ function _preInsertDocumentFragment (node, parent, child) {
 	var hasEle = false;
 	for (var i = 0, len = node.childNodes.length; i < len; i++) {
 		var el = node.childNodes[i];
-		if (el instanceof Text) {
+		if (el.nodeType === Node.TEXT_NODE) {
 			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
-		} else if (el instanceof Element) {
+		} else if (el.nodeType === Node.ELEMENT_NODE) {
 			if (hasEle) {
 				throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
 			} else {
@@ -136,7 +135,23 @@ function _preInsertDocumentFragment (node, parent, child) {
 }
 
 function _preInsertElement(node, parent, child) {
-	// TODO: Throw error based on pre-insert 4. 3. (doctype)
+	var children = parent.childNodes,
+		pos = 0;
+
+	for (var i = 0, len = children.length; i < len; i++) {
+		var el = children[i];
+		if (el.nodeType === Node.ELEMENT_NODE && child === null) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		}
+		if (el.isSameNode(child)) {
+			pos = i;
+		}
+		if (el.nodeType === Node.DOCUMENT_TYPE_NODE) {
+			if (i > pos) {
+				throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+			}
+		}
+	}
 }
 
 function _preInsertDocumentType(node, parent, child) {
@@ -146,13 +161,13 @@ function _preInsertDocumentType(node, parent, child) {
 
 	for (var i = 0, len = children.length; i < len; i++) {
 		var el = children[i];
-		if (el instanceof DocumentType) {
+		if (el.nodeType === Node.DOCUMENT_TYPE_NODE) {
 			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
 		}
 		if (el.isSameNode(child)) {
 			pos = i;
 		}
-		if (el instanceof Element) {
+		if (el.nodeType === Node.ELEMENT_NODE) {
 			firstEl === -1 && (firstEl = i);
 		}
 	}
@@ -173,38 +188,208 @@ function _preInsert(node, parent, child) {
 		parentOfParent = parent.parentNode;
 	} while (parentOfParent != null)
 
-	var condition = parent instanceof Document || parent instanceof DocumentFragment 
-		|| parent instanceof Element;
+	var condition = parent.nodeType === Node.DOCUMENT_NODE || 
+		parent.nodeType === Node.DOCUMENT_FRAGMENT_NODE || 
+		parent.nodeType === Node.ELEMENT_NODE;
 	if (!condition) {
 		throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
 	}
 
-	if (parent instanceof Document) {
-		if (node instanceof Text || node instanceof Document) {
+	if (parent.nodeType === Node.DOCUMENT_NODE) {
+		if (node.nodeType === Node.TEXT_NODE || 
+			node.nodeType === Node.DOCUMENT_NODE
+		) {
 			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
 		}
-		if (node instanceof DocumentFragment) {
+		if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
 			_preInsertDocumentFragment(node, parent, child);
 		}
-		if (node instanceof Element) {
+		if (node.nodeType === Node.ELEMENT_NODE) {
 			_preInsertElement(node, parent, child);
 			
 		}
-		if (node instanceof DocumentType) {
+		if (node.nodeType === Node.DOCUMENT_TYPE_NODE) {
 			_preInsertDocumentType(node, parent, child);
 		}
 	}
-	if (parent instanceof DocumentFragment || parent instanceof Element) {
-		if (node instanceof Document || node instanceof DocumentType) {
+	if ((parent.nodeType === Node.DOCUMENT_FRAGMENT_NODE || 
+		parent.nodeType === Node.ELEMENT_NODE) &&
+		(node.nodeType === Node.DOCUMENT_NODE ||
+		node.nodeType === Node.DOCUMENT_TYPE_NODE)
+	) {
 			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
-		}
 	}
 	parent.ownerDocument.adoptNode(node);
 	_insert(node, parent, child);
+	return child;
 }
 
 function _insert(node, parent, child) {
-	// TODO: implement insert
+	var nodes = [node];
+	if (node.nodeType === DOCUMENT_FRAGMENT_NODE) {
+		nodes = node.childNodes;
+	}
+	var count = nodes.length;
+	var children = parent.childNodes;
+	var len = children.length;
+	// TODO: handle ranges
+	
+	if (child === null) {
+		for (var j = 0; i < count; j++) {
+			children[len + j] = nodes[j];
+		}
+	} else {
+		for (var i = len - 1; i >= 0; i--) {
+			var el = children[i];
+			children[i + count] = el;
+			if (el === child) {
+				for (var j = 0; i < count; j++) {
+					children[i + j] = nodes[j];
+				}
+				break;
+			}
+		}	
+	}
+	
+	children.length = len + count;
+}
+
+function _replaceDocument(child, node, parent) {
+	if (node.nodeType === Node.TEXT_NODE ||
+		node.nodeType === Node.DOCUMENT_NODE
+	) {
+		throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+	}
+	if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+		if (node.childNodes.length > 1 ||
+			(node.firstChild && 
+			node.firstChild.nodeType === Node.TEXT_NODE) 
+		) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		}
+		var children = parent.childNodes;
+		var pos = 0;
+		for (var i = 0, len = children.length; i < len; i++) {
+			var el = children[i];
+			if (el.isSameNode(child)) {
+				pos = i;
+			}
+			if ((el.nodeType === ELEMENT_NODE && !el.isSameNode(child)) &&
+				(el.nodeType === DOCUMENT_TYPE_NODE && i > pos)
+			) {
+				throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+			}
+		}
+	}
+	if (node.nodeType === Node.ELEMENT_NODE) {
+		var children = parent.childNodes;
+		var pos = 0;
+		for (var i = 0, len = children.length; i < len; i++) {
+			var el = children[i];
+			if (el.isSameNode(child)) {
+				pos = i;
+			}
+			if ((el.nodeType === ELEMENT_NODE && !el.isSameNode(child)) &&
+				(el.nodeType === DOCUMENT_TYPE_NODE && i > pos)
+			) {
+				throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+			}
+		}
+	}
+	if (node.nodeType === Node.DOCUMENT_TYPE_NODE) {
+		var children = parent.childNodes;
+		var pos = 0;
+		for (var i = children.length - 1; i >= 0; i--) {
+			var el = children[i];
+			if (el.isSameNode(child)) {
+				pos = i;
+			}
+			if ((el.nodeType === DOCUMENT_TYPE_NODE && 
+				!el.isSameNode(child)) &&
+				(el.nodeType === ELEMENT_NODE && i < pos)
+			) {
+				throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+			}
+		}
+	}
+}
+
+function _replace(child, node, parent) {
+	if (!child.parentNode.isSameNode(parent)) {
+		throwDOMException(DOMException.NOT_FOUND_ERR);
+	}
+	var parentOfParent = parent;
+	do {
+		if (node.isSameNode(parentOfParent)) {
+			throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+		}
+		parentOfParent = parentOfParent.parentNode;
+	} while (parentOfParent !== null)
+
+	if (!(parent.nodeType === Node.DOCUMENT_NODE ||
+		parent.nodeType === Node.ELEMENT_NODE ||
+		parent.nodeType === Node.DOCUMENT_FRAGMENT_NODE)
+	) {
+		throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+	}
+
+	if (parent.nodeType === Node.DOCUMENT_NODE) {
+		_replaceDocument(child, node, parent);
+	}
+	if ((parent.nodeType === Node.DOCUMENT_FRAGMENT_NODE || 
+		parent.nodeType === Node.ELEMENT_NODE) && 
+		(node.nodeType === Node.DOCUMENT_NODE ||
+		node.nodeType === Node.DOCUMENT_TYPE_NODE)
+	) {
+		throwDOMException(DOMException.HIERARCHY_REQUEST_ERR);
+	}
+
+	parent.ownerDocument.adoptNode(node);
+	var ref = child.nextSibling;
+	_remove(child, parent);
+	_insertBefore(node, parent, ref);
+	return child;
+}
+
+function _preremove(node, parent) {
+	if (!node.parentNode.isSameNode(parent)) {
+		throwDOMException(DOMException.NOT_FOUND_ERR);
+	}
+	_remove(node, parent);
+	return node;
+}
+
+function _remove(node, parent) {
+	var found = false,
+		children = parent.childNodes;
+
+	// TODO: handle ranges
+
+	for (var i = 0, len = children.length; i < len; i++) {
+		if (children[i].isSameNode(nodes)) {
+			found = true;
+		}
+		if (found) {
+			children[i] = children[i+1];
+		}
+	}
+	children.length = len - 1;
+}
+
+function _insertBefore(node, child) {
+	return _preInsert(node, this, child);
+}
+
+function _appendChild(node) {
+	return this.insertBefore(node, null);
+}
+
+function _replaceChild(node, child) {
+	return _replace(child, node, this);
+}
+
+function _removeChild(child) {
+	return _remove(child, node);
 }
 
 function _isSameNode(node) {
@@ -227,6 +412,18 @@ var nodeProps = {
 	},
 	"isSameNode": {
 		value: _isSameNode
+	},
+	"insertBefore": {
+		value: _insertBefore
+	},
+	"appendChild": {
+		value: _appendChild
+	},
+	"replaceChild": {
+		value: _replaceChild
+	},
+	"removeChild": {
+		value: _removeChild
 	}
 };
 
@@ -253,7 +450,7 @@ function _getNodeType() {
 		return Node.DOCUMENT_TYPE_NODE;
 	} else if (this instanceof DocumentFragment) {
 		return Node.DOCUMENT_FRAGMENT_NODE;
-	}
+	} 
 }
 
 function _getNodeName() {
@@ -273,8 +470,6 @@ function _getNodeName() {
 		return "#document-fragment";
 	}
 }
-
-// TODO: refactor all instanceof to `.nodeType`
 
 function _getParentElement() {
 	var parent = this.parentNode;
@@ -343,8 +538,9 @@ function _replaceData(node, offset, count, data) {
 }
 
 function _getNodeValue() {
-	var condition = this instanceof Text || this instanceof Comment
-		|| this instanceof ProcessingInstruction;
+	var condition = this.nodeType === Node.TEXT_NODE || 
+		this.nodeType === Node.COMMENT_NODE || 
+		this.nodeType === Node.PROCESSING_INSTRUCTION_NODE;
 	if (condition) {
 		return this.data;
 	}
@@ -352,22 +548,26 @@ function _getNodeValue() {
 }
 
 function _setNodeValue(value) {
-	var condition = this instanceof Text || this instanceof Comment
-		|| this instanceof ProcessingInstruction;
+	var condition = this.nodeType === Node.TEXT_NODE || 
+		this.nodeType === Node.COMMENT_NODE || 
+		this.nodeType === Node.PROCESSING_INSTRUCTION_NODE;
 	if (condition) {
 		_replaceData(this, 0, value.length, value);
 	}
 }
 
 function _getTextContent() {
-	var condition = this instanceof Text || this instanceof Comment
-		|| this instanceof ProcessingInstruction;
+	var condition = this.nodeType === Node.TEXT_NODE || 
+		this.nodeType === Node.COMMENT_NODE || 
+		this.nodeType === Node.PROCESSING_INSTRUCTION_NODE;
 	if (condition) {
 		return this.data;
-	} else if (this instanceof Element || this instanceof DocumentFragment) {
+	} else if (this.nodeType === Node.ELEMENT_NODE || 
+		this.nodeType === Node.DOCUMENT_FRAGMENT_NODE
+	) {
 		var data = "";
 		recursivelyWalk(this.childNodes, function (node) {
-			if (node instanceof Text) {
+			if (node.nodeType === Node.TEXT_NODE) {
 				data += node.data;
 			}
 		});
@@ -377,11 +577,14 @@ function _getTextContent() {
 }
 
 function _setTextContent(value) {
-	var condition = this instanceof Text || this instanceof Comment
-		|| this instanceof ProcessingInstruction;
+	var condition = this.nodeType === Node.TEXT_NODE || 
+		this.nodeType === Node.COMMENT_NODE || 
+		this.nodeType === Node.PROCESSING_INSTRUCTION_NODE;
 	if (condition) {
 		_replaceData(this, 0, value.length, value);
-	} else if (this instanceof Element || this instanceof DocumentFragment) {
+	} else if (this.nodeType === Node.ELEMENT_NODE || 
+		this.nodeType === Node.DOCUMENT_FRAGMENT_NODE
+	) {
 		for (var i = 0, len = this.childNodes.length; i < len; i++) {
 			this.removeChild(this.childNodes[i]);
 		}
@@ -432,19 +635,9 @@ addGetterSetterToProto(nodeGetterSetters, NodeProto);
 
 // BUG: .childNodes cannot be shimmed
 
-// TODO: Imeplement insertBefore
-
-// TODO: Implement appendChild
-
-// TODO: Implement replaceChild
-
-// TODO: Implement removeChild
-
 // TODO: Implement cloneNode
 
-// TODO: Implement isSameNode
-
-// TODO; Implement isEqualNode
+// TODO: Implement isEqualNode
 
 // TODO: Implement lookupPrefix
 
