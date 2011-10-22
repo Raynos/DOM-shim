@@ -1,4 +1,5 @@
-;(function (window, document, undefined) {function _methodError(t, name, method) {
+;(function (window, document, undefined) { 
+function _methodError(t, name, method) {
 	return t.ok(false, name + " does not have method " + method);
 }
 

@@ -34,11 +34,11 @@ var propsBlackListForIE = {
 function addGetterSetterToProtoForEach(props, proto, name) {
 	var hasProperty = false,
 		value = props[name];
-	
-	hasProperty = Object.hasOwnProperty.call(proto, name);	
-	
-	if (name === "nodeType") {
-		console.info("nodeType" + hasProperty);
+	try {
+		hasProperty = proto[name];
+	} catch (e) {
+		// IE9 throws errors
+		hasProperty = proto.hasOwnProperty(name);
 	}
 	if (!hasProperty || value.force) {
 		var obj = {

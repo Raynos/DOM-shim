@@ -4,7 +4,7 @@ var fs = require("fs"),
 process.chdir(__dirname);
 
 function makeFile(loc) {
-	var code = ";(function (window, document, undefined) {";
+	var code = ";(function (window, document, undefined) { \n";
 
 	var files = fs.readdirSync(loc);
 	files.forEach(function (filename) {

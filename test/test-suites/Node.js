@@ -1,4 +1,3 @@
-
 suites["Test Node"] = {
 	"test nodeType": function (t) {
 		var nodes = makeNodes();
