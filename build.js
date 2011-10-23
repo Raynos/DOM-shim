@@ -25,6 +25,8 @@ fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeOrderedFile(
 		"Helpers.js",
 		"document.js",
 		"Node.js",
+		"DOMException.js",
+		"Event.js",
 		"bugs.js"
 	],
 	"src"
@@ -32,7 +34,9 @@ fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeOrderedFile(
 fs.writeFileSync(path.join("test", "compiled", "tests.js"), makeOrderedFile(
 	[
 		"Helpers.js",
-		"Node.js"
+		"Node.js",
+		"DOMException.js",
+		"Event.js"
 	],
 	path.join("test", "test-suites")
 ));

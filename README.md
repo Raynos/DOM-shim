@@ -1,13 +1,15 @@
-DOM-shim
+# DOM-shim
 
 Normalizing the DOM across all modern browsers.
 
-For those of us not stuck in 2003 we want to use the DOM. 
-
 The DOM-shim offers you a fully compliant, normalized DOM in all browsers
 
-Attempts to bring IE8 upto DOM4 compliance.
-
  - [DOM4 Node interface][1] completely shimmed
+ - [DOM4 DOMException interface][2] completely shimmed
+ - [DOM4 EventTarget interface][3] completely shimmed
+
+Use `.addEventListener`, `.contains`, `.textContent`, etc. today.
 
   [1]: http://www.w3.org/TR/2011/WD-dom-20110915/#interface-node
+  [2]: http://www.w3.org/TR/2011/WD-dom-20110915/#exception-domexception
+  [3]: http://www.w3.org/TR/2011/WD-dom-20110915/#eventtarget
