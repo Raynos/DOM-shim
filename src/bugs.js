@@ -1,3 +1,4 @@
+// IE - contains fails if argument is textnode
 (function () {
     var txt = document.createTextNode("temp"),
         el = document.createElement("p");
@@ -9,19 +10,19 @@
     } catch (e) {
         // The contains method fails on text nodes in IE8
         // swap the contains method for our contains method
-        addPropsToProtoForEach(
+        domShim.utils.addPropsToProto(
             {
                 "contains": {
-                    value: _contains,
+                    value: domShim.props.Node.contains.value,
                     force: true 
                 }
             },
-            NodeProto,
-            "contains"
+            domShim.Node.prototype
         );
     }
 })();
 
+// Firefox fails on .cloneNode thinking argument is not optional
 (function () {
     function _cloneNodeOnProto(proto) {
         var cloneNodePD = Object.getOwnPropertyDescriptor(proto, "cloneNode");
@@ -49,29 +50,39 @@
         if (e.message === "Not enough arguments") {
             // Firefox things the argument is not optional
             [
-                NodeProto,
-                CommentProto,
-                ElementProto,
-                ProcessingInstructionProto,
-                DocumentProto,
-                DocumentTypeProto,
-                DocumentFragmentProto
+                domShim.Node.prototype,
+                domShim.Comment.prototype,
+                domShim.Element.prototype,
+                domShim.ProcessingInstruction.prototype,
+                domShim.Document.prototype,
+                domShim.DocumentType.prototype,
+                domShim.DocumentFragment.prototype
             ].forEach(_cloneNodeOnProto);
 
-            Object.keys(HTMLEls).forEach(function (name) {
-                _cloneNodeOnProto(HTMLEls[name].prototype);
+            Object.keys(domShim.HTMLEls).forEach(function (name) {
+                _cloneNodeOnProto(domShim.HTMLEls[name].prototype);
             });
         }
     }
 })();
 
+// IE9 throws an error when trying to access .code on the 
+// DOMException prototype
 (function () {
-    var ex = Object.create(DOMExceptionProto);
+    var ex = Object.create(domShim.DOMException.prototype);
 
     try {
         var temp = ex.code;
     } catch (e) {
         // IE9 cannot get code
-        delete DOMExceptionProto.code;
+        delete domShim.DOMException.prototype.code;
+    }
+})();
+
+// IE8 Document does not inherit EventTarget
+(function () {
+    if (!document.addEventListener) {
+        domShim.utils.addPropsToProto(
+            domShim.props.EventTarget, domShim.Document.prototype);
     }
 })();

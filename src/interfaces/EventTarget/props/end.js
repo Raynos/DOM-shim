@@ -1,0 +1,1 @@
+domShim.utils.addPropsToProto(domShim.props.EventTarget, domShim.EventTarget.prototype);

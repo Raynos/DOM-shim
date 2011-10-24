@@ -99,6 +99,7 @@ suites["Test Node"] = {
 		var nodes = makeNodes();
 		nodes.docfrag.appendChild(nodes.el);
 		nodes.docfrag.appendChild(nodes.txt);
+		console.log(nodes.docfrag.contains);
 		t.equal(nodes.docfrag.contains(nodes.el), true, "docfrag contains el");
 		t.equal(nodes.el.contains(nodes.txt), false, "el does not contains txt");
 		t.done();

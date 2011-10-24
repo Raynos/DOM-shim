@@ -1,0 +1,1 @@
+domShim.getters.DOMException = {};
