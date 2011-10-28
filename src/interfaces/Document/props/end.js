@@ -1,1 +1,0 @@
-domShim.utils.addPropsToProto(domShim.props.Document, domShim.Document.prototype);

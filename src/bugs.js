@@ -17,7 +17,7 @@
                     force: true 
                 }
             },
-            domShim.Node.prototype
+            Node.prototype
         );
     }
 })();
@@ -84,5 +84,106 @@
     if (!document.addEventListener) {
         domShim.utils.addPropsToProto(
             domShim.props.EventTarget, domShim.Document.prototype);
+    }
+})();
+
+// FF fails when you "forgot" the optional parameter
+(function () {
+    var dummy = function () {};
+    try {
+        document.addEventListener("click", dummy);
+    } catch (e) {
+        var old = EventTarget.prototype.addEventListener;
+        domShim.utils.addPropsToProto(
+            {
+                "addEventListener": {
+                    value: function (type, listener, optional) {
+                        optional = optional || false;
+                    },
+                    force: true
+                }
+            },
+            EventTarget.prototype
+        );
+    } finally {
+        document.removeEventListener("click", dummy);
+    }
+})();
+
+// Chrome throws error if using Error
+// IE9 says Event is an object and not a function -.- 
+// IE8 doesn't like it and gives a different error messsage!
+(function () {
+    try {
+        new Event("click");
+    } catch (e) {
+        if (e.message === "Illegal constructor" ||
+            e.message === "Object doesn't support this action" ||
+            e.message === "Object doesn't support this property or method"
+        ) {
+            var proto = Event.prototype;
+            window.Event = function () {
+                domShim._Event.apply(this, arguments);
+            }
+            Event.prototype = proto;
+        }
+    }
+})();
+
+// Chrome initEvent will not work on Event.prototype objects
+// IE9 says you cant call .initEvent either
+// IE8 says no and uses a different error message!
+(function () {
+    try {
+        var e = new Event("click");    
+    } catch (e) {
+        if (e.message === "Illegal invocation" ||
+            e.message === "Invalid calling object" ||
+            e.message === "Object doesn't support property or method 'initEvent'"
+        ) {
+            // fix it by rewriting Event.
+            var proto = Event.prototype;
+            window.Event = function () {
+                var e = document.createEvent("Events");
+                domShim._Event.apply(e, arguments);
+                return e;
+            }
+            Event.prototype = proto;
+        }
+    }
+})();
+
+// Chrome calling .initEvent on a CustomEvent object is a no-no
+// IE9 doesn't like it either
+// IE8 says no in its own special way.
+(function () {
+    try {
+        var c = new CustomEvent("magic");
+    } catch (e) {
+        if (e.type === "illegal_invocation" ||
+            e.message === "Object doesn't support this action" ||
+            e.message === "Object doesn't support property or method 'initEvent'"
+        ) {
+            var proto = CustomEvent.prototype;
+            window.CustomEvent = function () {
+                var e = document.createEvent("Event");
+                domShim._CustomEvent.apply(e, arguments);
+                return e;
+            }
+            CustomEvent.prototype = proto;
+        }
+    }
+})();
+
+// IE8 window.addEventListener does not exist
+(function () {
+    if (!window.addEventListener) {
+        window.addEventListener = document.addEventListener.bind(document);
+    }
+    if (!window.removeEventListener) {
+        window.removeEventListener = document.removeEventListener.bind(document);
+    }
+    if (!window.dispatchEvent) {
+        window.dispatchEvent = document.dispatchEvent.bind(document);
     }
 })();

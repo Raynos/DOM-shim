@@ -113,8 +113,14 @@ domShim.utils.addPropsToProto = (function () {
             try {
                 Object.defineProperty(proto, name, obj);    
             } catch (e) {
-                // IE8 FFFFFFFFFFFFFFFFFFFFFFFFFFFF
-                delete obj.enumerable;
+                if (e.type === "redefine_disallowed") {
+                    // Chrome says no. Try writing to it
+                    proto[name] = obj.value;
+                } else {
+                    console.log(e);
+                    // IE8 FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                    delete obj.enumerable;    
+                }
             }
             try {
                 Object.defineProperty(proto, name, obj);
@@ -164,7 +170,10 @@ domShim.utils.addConstsToObject = function addConstsToObject(consts, object) {
 
 (function () {
 
-    var shimConstructor = ["CustomEvent", "Event"];
+    var shimConstructor = {
+        "CustomEvent": true,
+        "Event": true
+    };
 
     var interfaces = [
         "CharacterData", "Comment", "CustomEvent", "Document", "DocumentFragment", 
@@ -182,7 +191,7 @@ domShim.utils.addConstsToObject = function addConstsToObject(consts, object) {
 
         if (shimConstructor[name]) {
             constructor || (constructor = function () {
-                domShim["_" + name].apply(null, arguments);
+                domShim["_" + name].apply(this, arguments);
             });
         } else {
             constructor || (constructor = function () {});

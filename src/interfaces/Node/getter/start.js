@@ -1,4 +1,3 @@
-domShim.getters.Node = {};
 domShim.common.Node._replaceData = function _replaceData(node, offset, count, data) {
     var length = node.length;
     var oldData = node.data;
