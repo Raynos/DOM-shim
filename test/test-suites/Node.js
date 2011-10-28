@@ -166,6 +166,7 @@ suites["Test Node"] = {
 		try {
 			var clone = nodes.el.cloneNode();	
 		} catch (e) {
+			console.log("ehm?");
 			console.log(e);
 		}
 		

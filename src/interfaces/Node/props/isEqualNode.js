@@ -14,9 +14,9 @@ function _isEqualNode(node) {
         }
     }
     if (node.nodeType === Node.ELEMENT_NODE) {
-        if (this.namespaceURI !== node.namespaceURI ||
-            this.prefix !== node.prefix ||
-            this.localName !== node.localName
+        if (this.namespaceURI != node.namespaceURI ||
+            this.prefix != node.prefix ||
+            this.localName != node.localName
         ) {
             return false;
         }
