@@ -85,7 +85,6 @@ function readInterfaceFolder(loc, code) {
 	var tokens = loc.split("\\");
 	var interface = tokens[tokens.length - 1];
 	readSortedFiles(loc, code, function (file) {
-		console.log(file);
 		var folderPath = path.join(loc, file);
 		if (file === "props") {
 			readPropsFolder(folderPath, code, interface);
@@ -110,30 +109,11 @@ function buildDOMShim() {
 
 fs.writeFileSync(path.join("lib", "DOM-shim.js"), buildDOMShim());
 
-// OLD DOM-SHIM BUILD
-/*fs.writeFileSync(path.join("lib", "DOM-shim.js"), makeOrderedFile(
-	[	
-		"Variables.js",
-		"Helpers.js",
-		"document.js",
-		"Node.js",
-		"DOMException.js",
-		"Event.js",
-		"bugs.js"
-	],
-	"src"
-));*/
+var code = [];
+readFolder(path.join("test", "test-suites"), code);
 
 // BUILD UNIT TESTS
-fs.writeFileSync(path.join("test", "compiled", "tests.js"), makeOrderedFile(
-	[
-		"Helpers.js",
-		"Node.js",
-		"DOMException.js",
-		"Event.js"
-	],
-	path.join("test", "test-suites")
-));
+fs.writeFileSync(path.join("test", "compiled", "tests.js"), code.join(""));
 // BUILD COMPLIANCE TESTS
 fs.writeFileSync(
 	path.join("test", "compiled", "compliance.js"), 

@@ -26,6 +26,42 @@ domShim.utils.throwDOMException = function throwDOMException(code) {
     throw ex;
 };
 
+domShim.common._clone = function _clone(node, document, deep) {
+    document = document || node.ownerDocument;
+    var copy;
+    if (node.nodeType === Node.ELEMENT_NODE) {
+        var namespace = node.nodeName;
+        if (node.prefix) {
+            namespace = node.prefix + ":" + namespace;
+        }
+        copy = document.createElementNS(node.namespaceURI, namespace);
+        for (var i = 0, len = node.attributes.length; i < len; i++) {
+            var attr = node.attributes[i];
+            copy.setAttribute(attr.name, attr.value);
+        }
+    } else if (node.nodeType === Node.DOCUMENT_NODE) {
+        copy = document.implementation.createDocument("", "", null);
+    } else if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+        copy = document.createDocumentFragment();
+    } else if (node.nodeType === Node.DOCUMENT_TYPE_NODE) {
+        copy = document.implementation.createDocumentType(node.name, node.publicId, node.systemId);
+    } else if (node.nodeType === Node.COMMENT_NODE) {
+        copy = document.createComment(node.data);
+    } else if (node.nodeType === Node.TEXT_NODE) {
+        copy = document.createTextNode(node.data);
+    } else if (node.nodeType === Node.PROCESSING_INSTRUCTION_NODE) {
+        copy = document.createProcessingInstruction(node.target, node.data);
+    }
+    // TODO: other cloning steps from other specifications
+    if (deep) {
+        var children = node.childNodes;
+        for (var i = 0, len = children.length; i < len; i++) {
+            copy.appendChild(children[i].cloneNode(node, document, deep));
+        }
+    }
+    return copy;
+};
+
 domShim.utils.addGetterToProto = (function () {
     var getterBlackListForIE = {
         nodeType: true,
@@ -175,7 +211,7 @@ domShim.utils.addConstsToObject = function addConstsToObject(consts, object) {
         "Event": true
     };
 
-    var interfaces = [
+    domShim.interfaces = [
         "CharacterData", "Comment", "CustomEvent", "Document", "DocumentFragment", 
         "DocumentType", "DOMException", "DOMImplementation", "Element",
         "Event", "EventTarget", "Node", "ProcessingInstruction", "Text",
@@ -185,7 +221,7 @@ domShim.utils.addConstsToObject = function addConstsToObject(consts, object) {
     // Extract each interface from window and either shim the constructor
     // or default the constructor
 
-    interfaces.forEach(function (name) {
+    domShim.interfaces.forEach(function (name) {
         var constructor = window[name];
         var proto = constructor && constructor.prototype;
 
@@ -203,7 +239,14 @@ domShim.utils.addConstsToObject = function addConstsToObject(consts, object) {
 
     // The rest depend on these three
 
-
+    var ev, cev;
+    try {
+        ev = document.createEvent("Event");
+        cev = document.createEvent("CustomEvent");
+    } catch (e) {
+        // IE8 says lol no.
+        ev = cev = document.createEventObject();
+    }
 
     domShim.protoNode || 
         (domShim.protoNode = domShim.protoElement);
@@ -211,11 +254,12 @@ domShim.utils.addConstsToObject = function addConstsToObject(consts, object) {
     domShim.protoCharacterData || 
         (domShim.protoCharacterData = Object.create(domShim.protoNode));
 
-    domShim.protoEvent || (domShim.protoEvent = {});
+    domShim.protoEvent || 
+        (domShim.protoEvent = Object.getPrototypeOf(ev));
 
     var shimPrototypes = {
         "Comment": Object.create(domShim.protoCharacterData),
-        "CustomEvent": Object.create(domShim.protoEvent),
+        "CustomEvent": Object.getPrototypeOf(cev),
         // IE8 needs HTMLDocument for proper inheritance
         "Document": window.HTMLDocument && window.HTMLDocument.prototype,
         "DocumentFragment": Object.create(domShim.protoNode),
@@ -255,7 +299,7 @@ domShim.utils.addConstsToObject = function addConstsToObject(consts, object) {
     });
 
     // punch them back into the window
-    interfaces.forEach(function (name) {
+    domShim.interfaces.forEach(function (name) {
         var constructor = domShim[name],
             proto = domShim["proto"+name];
 

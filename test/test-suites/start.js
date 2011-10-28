@@ -1,4 +1,4 @@
-var makeNodes = function () {
+window.makeNodes = function () {
 	// TODO: Test ProcessingInstruction
 	return {
 		"el": document.createElement("p"),
@@ -9,4 +9,12 @@ var makeNodes = function () {
 		"doctype": document.implementation.createDocumentType("html5", "", ""),
 		"docfrag": document.createDocumentFragment()
 	};
+};
+
+window.toArray = function (obj) {
+	var arr = [];
+	for (var i = 0, len = obj.length; i < len; i++) {
+		arr[i] = obj[i];
+	}
+	return arr;
 };
