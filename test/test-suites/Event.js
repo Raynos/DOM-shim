@@ -12,7 +12,7 @@ suites["test Events"] = {
         });
         var ev = document.createEvent("Event");
         ev.initEvent("click", false, false);
-        el.dispatchEvent(ev);    
+        el.dispatchEvent(ev);
     },
     "test dispatchEvent": function (t) {
         t.expect(1);
@@ -55,6 +55,7 @@ suites["test Events"] = {
         document.dispatchEvent(ev);
     },
     "test Event constructor": function (t) {
+        console.log("in Event");
         t.expect(3);
         var e = new Event("click");
         t.equal(Object.getPrototypeOf(e), Event.prototype, 
@@ -69,6 +70,7 @@ suites["test Events"] = {
         window.dispatchEvent(e);
     },
     "test CustomEvent constructor": function (t) {
+        console.log("in CustomEvent");
         t.expect(3);
         var called = 0;
         var e = new CustomEvent("magic", {

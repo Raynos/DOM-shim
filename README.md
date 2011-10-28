@@ -22,6 +22,12 @@ Bonus:
     });
     el.dispatchEvent(c);
 
+Related blog posts:
+
+ - [DOM libraries][30]
+ - [DOM Extension not always evil][31]
+ - [Native Custom Events made easy][32]
+
   [1]: http://www.w3.org/TR/2011/WD-dom-20110915/#interface-node
   [2]: http://www.w3.org/TR/2011/WD-dom-20110915/#exception-domexception
   [3]: http://www.w3.org/TR/2011/WD-dom-20110915/#eventtarget
@@ -29,3 +35,7 @@ Bonus:
   [5]: http://www.w3.org/TR/domcore/#interface-customevent
   [6]: http://www.w3.org/TR/domcore/#interface-document
   [7]: http://www.w3.org/TR/domcore/#interface-domimplementation
+
+  [30]: http://raynos.org/blog/10/DOM-Libraries
+  [31]: http://raynos.org/blog/8/DOM-Extension-is-not-always-evil
+  [32]: http://raynos.org/blog/11/Native-Custom-events-made-easy
