@@ -132,18 +132,34 @@
     }
 })();
 
+// Opera says DOMException.prototype.name is "DOMException".
+// So punch it to read from code or from the proper getter
+(function () {
+    var e = Object.create(DOMException.prototype);
+    e.code = 18;
+    if (e.name === "DOMException") {
+        var pd = {
+            get: domShim.getters.DOMException.name.get,
+            configurable: true
+        };
+        Object.defineProperty(DOMException.prototype, "name", pd);
+    }
+})();
+
 // FF fails when you "forgot" the optional parameter
 (function () {
     var dummy = function () {};
     try {
         document.addEventListener("click", dummy);
     } catch (e) {
+        console.log("opera fails here too");
         var old = EventTarget.prototype.addEventListener;
         domShim.utils.addPropsToProto(
             {
                 "addEventListener": {
                     value: function (type, listener, optional) {
                         optional = optional || false;
+                        return old.call(this, type, listener, optional);
                     },
                     force: true
                 }
@@ -160,6 +176,7 @@
 // IE8 doesn't like it and gives a different error messsage!
 // Firefox also says no
 // Safari says me too, me too!
+// Opera throws a DOM exception instead ¬_¬
 (function () {
     try {
         new Event("click");
@@ -168,7 +185,8 @@
             e.message === "Object doesn't support this action" ||
             e.message === "Object doesn't support this property or method" ||
             e.message === "Event is not a constructor" ||
-            e.message === "'[object EventConstructor]' is not a constructor (evaluating 'new Event(\"click\")')"
+            e.message === "'[object EventConstructor]' is not a constructor (evaluating 'new Event(\"click\")')" ||
+            e.message === "NOT_SUPPORTED_ERR"            
         ) {
             var proto = Event.prototype;
             window.Event = function () {
@@ -186,6 +204,7 @@
 // IE8 says no in its own special way.
 // Firefox agrees this cannot be done
 // Safari says lul wut?
+// Opera says have another DOM exception!
 (function () {
     try {
         var c = new CustomEvent("magic");
@@ -194,7 +213,8 @@
             e.message === "Object doesn't support this action" ||
             e.message === "Object doesn't support property or method 'initEvent'" ||
             e.message === "CustomEvent is not a constructor" ||
-            e.message === "Type error"
+            e.message === "Type error" ||
+            e.message === "NOT_SUPPORTED_ERR"
         ) {
             var proto = CustomEvent.prototype;
             window.CustomEvent = function () {
@@ -222,13 +242,16 @@
 
 // IE9 thinks the argument is not optional
 // FF thinks the argument is not optional
+// Opera agress that its not optional
 (function () {
     var e = document.createElement("div");
     try {
         document.importNode(e);
     } catch (e) {
+        console.log(e);
         if (e.message === "Argument not optional" ||
-            e.message === "Not enough arguments"    
+            e.message === "Not enough arguments" ||
+            e.message === "WRONG_ARGUMENTS_ERR"
         ) {
             var importNode = document.importNode;
             document.importNode = function (node, bool) {
@@ -266,4 +289,34 @@
             });
         }
     }
+})();
+
+// Opera is funny about the "optional" parameter on addEventListener
+(function () {
+    var el = document.createElement("div");
+    var count = 0;
+    var handler = function () {
+        count++;
+    }
+    el.addEventListener("click", handler);
+    var ev = new Event("click");
+    el.dispatchEvent(ev);
+    if (count === 0) {
+        // fix opera
+        var oldListener = EventTarget.prototype.addEventListener;
+        EventTarget.prototype.addEventListener = function (ev, cb, optional) {
+            optional = optional || false;
+            return oldListener.call(this, ev, cb, optional);
+        };
+        // fix removeEventListener aswell
+        var oldRemover = EventTarget.prototype.removeEventListener;
+        EventTarget.prototype.removeEventListener = function (ev, cb, optional) {
+            optional = optional || false;
+            return oldRemover.call(this, ev, cb, optional);
+        };
+        // punch window.
+        window.addEventListener = EventTarget.prototype.addEventListener;
+        window.removeEventListener = EventTarget.prototype.removeEventListener;
+    }
+    el.removeEventListener("click", handler);
 })();

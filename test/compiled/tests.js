@@ -228,7 +228,7 @@ suites["test Events"] = {
         });
         var ev = document.createEvent("Event");
         ev.initEvent("click", false, false);
-        el.dispatchEvent(ev);    
+        el.dispatchEvent(ev);
     },
     "test dispatchEvent": function (t) {
         t.expect(1);
@@ -271,6 +271,7 @@ suites["test Events"] = {
         document.dispatchEvent(ev);
     },
     "test Event constructor": function (t) {
+        console.log("in Event");
         t.expect(3);
         var e = new Event("click");
         t.equal(Object.getPrototypeOf(e), Event.prototype, 
@@ -285,6 +286,7 @@ suites["test Events"] = {
         window.dispatchEvent(e);
     },
     "test CustomEvent constructor": function (t) {
+        console.log("in CustomEvent");
         t.expect(3);
         var called = 0;
         var e = new CustomEvent("magic", {
@@ -304,6 +306,29 @@ suites["test Events"] = {
         window.addEventListener("magic", handler);
         window.dispatchEvent(e);
         document.documentElement.firstChild.dispatchEvent(e);
+    }
+}
+})(); 
+
+;(function () { 
+suites["test Element"] = {
+    "test classList": function (t) {
+        var el = document.createElement("div");
+        var clist = el.classList;
+        clist.add("foo");
+        t.equal(el.className, "foo", "class name is not adjusted properly");
+        clist.remove("foo");
+        t.equal(el.className, "", "class name is not adjusted properly");
+        clist.add("bar");
+        t.ok(clist.contains("bar"), "class list contains is broken");
+        t.equal(clist[0], "bar", "index does not work");
+        clist.add("foo");
+        t.equal(clist.item(1), "foo", "item does not work");
+        t.equal(clist.toggle("foo"), false, "toggle does not return boolean");
+        t.equal(clist.contains("foo"), false, "contains does not show properly");
+        t.equal(clist.toggle("foo"), true, "toggle does not return true");
+        t.equal(clist.contains("foo"), true, "toggle did not add token");
+        t.done();
     }
 }
 })(); 
