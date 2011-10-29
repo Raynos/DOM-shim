@@ -1,8 +1,14 @@
 # DOM-shim
 
+## About
+
 Normalizing the DOM across all modern browsers.
 
 The DOM-shim offers you a fully compliant, normalized DOM in all browsers
+
+[## More details on wiki!][29]
+
+## Current shims
 
  - [DOM4 Node interface][1] completely shimmed
  - [DOM4 DOMException interface][2] completely shimmed
@@ -11,6 +17,9 @@ The DOM-shim offers you a fully compliant, normalized DOM in all browsers
  - [DOM4 CustomEvent interface][5] completely shimmed
  - [DOM4 Document interface][6] partially shimmed
  - [DOM4 DOMImplementation interface][7] partially shimmed
+ - [DOM4 Element interface][9] partially shimmed
+
+## Some features
 
 Use `.addEventListener`, `.contains`, `.textContent`, etc. today.
 
@@ -22,7 +31,7 @@ Bonus:
     });
     el.dispatchEvent(c);
 
-Related blog posts:
+## Related blog posts:
 
  - [DOM libraries][30]
  - [DOM Extension not always evil][31]
@@ -35,7 +44,9 @@ Related blog posts:
   [5]: http://www.w3.org/TR/domcore/#interface-customevent
   [6]: http://www.w3.org/TR/domcore/#interface-document
   [7]: http://www.w3.org/TR/domcore/#interface-domimplementation
+  [8]: http://www.w3.org/TR/domcore/#interface-element
 
+  [29]: https://github.com/Raynos/DOM-shim/wiki
   [30]: http://raynos.org/blog/10/DOM-Libraries
   [31]: http://raynos.org/blog/8/DOM-Extension-is-not-always-evil
   [32]: http://raynos.org/blog/11/Native-Custom-events-made-easy
