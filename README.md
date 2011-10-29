@@ -8,6 +8,10 @@ The DOM-shim offers you a fully compliant, normalized DOM in all browsers
 
 ## [More details on wiki!][29]
 
+## But how do I use it?
+
+Just steal lib/DOM-shim.js and throw it through your minifier of choice. Note the entire DOM-shim depends on ES5-shim.
+
 ## Current shims
 
  - [DOM4 Node interface][1] completely shimmed
