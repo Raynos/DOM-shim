@@ -26,6 +26,11 @@ function _dispatchEvent(ev) {
                 }
                 that.attachEvent("onpropertychange", handler);
                 that.domShim = 42;
+            // IE8 says no if its not in the DOM.
+            } else if (e.message === "Unspecified error.") {
+                document.body.appendChild(this);
+                this.dispatchEvent(ev);
+                document.body.removeChild(this);
             }
         }
         return ret;
