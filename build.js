@@ -114,11 +114,6 @@ readFolder(path.join("test", "test-suites"), code);
 
 // BUILD UNIT TESTS
 fs.writeFileSync(path.join("test", "compiled", "tests.js"), code.join(""));
-// BUILD COMPLIANCE TESTS
-fs.writeFileSync(
-	path.join("test", "compiled", "compliance.js"), 
-	makeFile(path.join("test", "compliance-suites"))
-);
 
 
 

@@ -222,13 +222,13 @@ suites["test Events"] = {
         el.addEventListener("click", function _handler1(ev) {
             t.ok(ev, "event has an event object");
             t.equal(ev.type, "click", "event type is correctly set");
-            t.done();
             document.body.removeChild(el);
             el.removeEventListener("click", _handler1);
         });
         var ev = document.createEvent("Event");
         ev.initEvent("click", false, false);
         el.dispatchEvent(ev);
+        t.done();
     },
     "test dispatchEvent": function (t) {
         t.expect(1);
@@ -236,12 +236,12 @@ suites["test Events"] = {
         document.body.appendChild(el);
         el.addEventListener("click", function _handler2() {
             t.ok(true, "event listener was called");
-            t.done();
             el.removeEventListener("click", _handler2);
         });
         var ev = document.createEvent("Event");
         ev.initEvent("click", false, false);
-        el.dispatchEvent(ev);  
+        el.dispatchEvent(ev);
+        t.done();
     },
     "test removeEventListener": function (t) {
         t.expect(1);
@@ -255,7 +255,6 @@ suites["test Events"] = {
         }
         function _handler5() {
             t.equal(counter, 1, "counter is correctly set");
-            t.done();
             document.removeEventListener("keyup", _handler5);
         }
 
@@ -269,6 +268,7 @@ suites["test Events"] = {
         var ev = document.createEvent("Event");
         ev.initEvent("keyup", false, false);
         document.dispatchEvent(ev);
+        t.done();
     },
     "test Event constructor": function (t) {
         t.expect(3);
@@ -279,11 +279,10 @@ suites["test Events"] = {
         var handler = function () {
             t.ok(true, "did not fire");
             window.removeEventListener("click", handler);
-            t.done();
         };
         window.addEventListener("click", handler)
         window.dispatchEvent(e);    
-        
+        t.done();
     },
     "test CustomEvent constructor": function (t) {
         t.expect(3);
@@ -533,7 +532,6 @@ suites["test Document"] = {
         t.expect(2)
         function handler() {
             t.ok(true, "it did not fire");
-            t.done();
             document.removeEventListener("click", handler);
         }
 
@@ -543,6 +541,7 @@ suites["test Document"] = {
             "event is not an event");
         document.addEventListener("click", handler);
         document.dispatchEvent(ev);
+        t.done();
     }
 }
 })(); 

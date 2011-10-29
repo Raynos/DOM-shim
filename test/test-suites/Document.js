@@ -90,7 +90,6 @@ suites["test Document"] = {
         t.expect(2)
         function handler() {
             t.ok(true, "it did not fire");
-            t.done();
             document.removeEventListener("click", handler);
         }
 
@@ -100,5 +99,6 @@ suites["test Document"] = {
             "event is not an event");
         document.addEventListener("click", handler);
         document.dispatchEvent(ev);
+        t.done();
     }
 }
