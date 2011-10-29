@@ -153,7 +153,6 @@ domShim.utils.addPropsToProto = (function () {
                     // Chrome says no. Try writing to it
                     proto[name] = obj.value;
                 } else {
-                    console.log(e);
                     // IE8 FFFFFFFFFFFFFFFFFFFFFFFFFFFF
                     delete obj.enumerable;    
                 }
