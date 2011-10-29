@@ -4,7 +4,7 @@ function _getElementsByClassName(clas) {
     domShim.utils.recursivelyWalk(document.childNodes, function (el) {
         var cname = el.className;
         cname = " " + cname + " ";
-        if (cname.indexOf(clas) > -1) {
+        if (cname.indexOf(" " + clas + " ") > -1) {
             arr.push(el);
         }
     });

@@ -108,14 +108,14 @@ function _getClassList(el) {
    if (this._classList) {
        return this._classList;
    } else {
-       return (this._classList = new DOMTokenList(
+       return new DOMTokenList(
             function _getClassName() {
-                return el.className;
+                return el.className || "";
             },
             function _setClassName(v) {
                 el.className = v;
             }
-       ));
+       );
    }
 }
 
