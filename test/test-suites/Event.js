@@ -55,7 +55,6 @@ suites["test Events"] = {
         document.dispatchEvent(ev);
     },
     "test Event constructor": function (t) {
-        console.log("in Event");
         t.expect(3);
         var e = new Event("click");
         t.equal(Object.getPrototypeOf(e), Event.prototype, 
@@ -67,15 +66,14 @@ suites["test Events"] = {
             t.done();
         };
         window.addEventListener("click", handler)
-        window.dispatchEvent(e);
+        window.dispatchEvent(e);    
+        
     },
     "test CustomEvent constructor": function (t) {
-        console.log("in CustomEvent");
         t.expect(3);
         var called = 0;
         var e = new CustomEvent("magic", {
-            bubbles: true,
-            cancelable: true
+            bubbles: true
         });
         t.equal(Object.getPrototypeOf(e), CustomEvent.prototype, 
             "prototype is not as expected");
@@ -84,11 +82,26 @@ suites["test Events"] = {
             if (++called === 2) {
                 t.ok(called, "did not fire");
                 window.removeEventListener("magic", handler);
-                t.done();
             }
         };
         window.addEventListener("magic", handler);
         window.dispatchEvent(e);
         document.documentElement.firstChild.dispatchEvent(e);
+        t.done();
+    },
+    "test CustomEvent detail": function (t) {
+        t.expect(1);
+        var e = new CustomEvent("someEv", {
+            detail: {
+                "flag": true
+            }
+        });
+        var handler = function (ev) {
+            t.equal(ev.detail.flag, true, "detail does not work");
+            document.removeEventListener("someEv", handler);
+        }
+        document.addEventListener("someEv", handler);
+        document.dispatchEvent(e);
+        t.done();
     }
 }

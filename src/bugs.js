@@ -152,7 +152,6 @@
     try {
         document.addEventListener("click", dummy);
     } catch (e) {
-        console.log("opera fails here too");
         var old = EventTarget.prototype.addEventListener;
         domShim.utils.addPropsToProto(
             {
@@ -248,7 +247,6 @@
     try {
         document.importNode(e);
     } catch (e) {
-        console.log(e);
         if (e.message === "Argument not optional" ||
             e.message === "Not enough arguments" ||
             e.message === "WRONG_ARGUMENTS_ERR"
@@ -293,14 +291,13 @@
 
 // Opera is funny about the "optional" parameter on addEventListener
 (function () {
-    var el = document.createElement("div");
     var count = 0;
     var handler = function () {
         count++;
     }
-    el.addEventListener("click", handler);
+    document.addEventListener("click", handler);
     var ev = new Event("click");
-    el.dispatchEvent(ev);
+    document.dispatchEvent(ev);
     if (count === 0) {
         // fix opera
         var oldListener = EventTarget.prototype.addEventListener;
@@ -318,5 +315,5 @@
         window.addEventListener = EventTarget.prototype.addEventListener;
         window.removeEventListener = EventTarget.prototype.removeEventListener;
     }
-    el.removeEventListener("click", handler);
+    document.removeEventListener("click", handler);
 })();
