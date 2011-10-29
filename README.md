@@ -16,7 +16,7 @@ As you can see browsers fail in different areas. The DOM-shim basically just nor
 
 > But jQuery/MooTools/Prototype/YUI/Extjs/etc/etc do that for me already!
 
-Yes and they offer you layers and abstraction on top of the DOM. Guess what happens when you do that? You get slow code. Code written with the DOM-shim is on average is about 10x faster then jQuery.
+Yes and they offer you layers and abstraction on top of the DOM. Guess what happens when you do that? You get slow code. Code written with the DOM-shim is on average is about 10x faster then code written with jQuery.
 
 ## But how do I use it?
 
