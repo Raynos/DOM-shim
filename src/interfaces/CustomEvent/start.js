@@ -1,7 +1,12 @@
 domShim._CustomEvent = function (type, dict) {
-    domShim._Event.apply(this, arguments);
-    var detail = dict && dict.detail;
-    if (detail !== undefined) {
-        this.detail = detail;
+    dict = dict || {};
+    dict.detail = dict.detail || null;
+    dict.bubbles = dict.bubbles || false;
+    dict.catchable = dict.catchable || false;
+    if (this.initCustomEvent) {
+        this.initCustomEvent(type, dict.bubbles, dict.catchable, dict.detail);
+    } else {
+        this.initEvent(type, dict.bubbles, dict.catchable);
+        this.detail = dict.detail;
     }
 }

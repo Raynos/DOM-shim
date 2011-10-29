@@ -16,5 +16,14 @@ suites["test Element"] = {
         t.equal(clist.toggle("foo"), true, "toggle does not return true");
         t.equal(clist.contains("foo"), true, "toggle did not add token");
         t.done();
+    },
+    "test children": function (t) {
+        var el = document.createElement("div");
+        el.textContent = "foobar";
+        var sub = document.createElement("div");
+        el.appendChild(sub);
+        t.equal(el.children.length, 1, "children does not have length one");
+        t.equal(el.children[0], sub, "child is not sub");
+        t.done();
     }
 }
