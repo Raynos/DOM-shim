@@ -4,7 +4,7 @@
 
 Normalizing the DOM across all modern browsers.
 
-The DOM-shim offers you a fully compliant, normalized DOM in all browsers
+the DOM-shim provides compatibility shims so that modern browsers behave as closely to DOM4 as possible.
 
 ## [More details on wiki!][29]
 
