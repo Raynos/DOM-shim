@@ -8,6 +8,16 @@ The DOM-shim offers you a fully compliant, normalized DOM in all browsers
 
 ## [More details on wiki!][29]
 
+## But why use the DOM-shim?
+
+Take a look at the [unit tests without the DOM-shim][2] on your browser of choice. And now take a look at the [unit tests with the DOM-shim][3]. Now do it for some more browsers. 
+
+As you can see browsers fail in different areas. The DOM-shim basically just normalizes everything for you. This means you can write code that works cross browser without worrying!
+
+> But jQuery/MooTools/Prototype/YUI/Extjs/etc/etc do that for me already!
+
+Yes and they offer you layers and abstraction on top of the DOM. Guess what happens when you do that? You get slow code. Code written with the DOM-shim is on average is about 10x faster then jQuery.
+
 ## But how do I use it?
 
 Just steal lib/DOM-shim.js and throw it through your minifier of choice. Note the entire DOM-shim depends on ES5-shim.
@@ -35,6 +45,8 @@ Bonus:
  - [Native Custom Events made easy][32]
 
   [1]: https://github.com/Raynos/DOM-shim/wiki/v0.1
+  [2]: http://raynos.github.com/DOM-shim/test/compliance.html
+  [3]: http://raynos.github.com/DOM-shim/test/test.html
 
   [29]: https://github.com/Raynos/DOM-shim/wiki
   [30]: http://raynos.org/blog/10/DOM-Libraries
