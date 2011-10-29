@@ -21,7 +21,7 @@ Just steal lib/DOM-shim.js and throw it through your minifier of choice. Note th
  - [DOM4 CustomEvent interface][5] completely shimmed
  - [DOM4 Document interface][6] partially shimmed
  - [DOM4 DOMImplementation interface][7] partially shimmed
- - [DOM4 Element interface][9] partially shimmed
+ - [DOM4 Element interface][8] partially shimmed
 
 ## Some features
 
