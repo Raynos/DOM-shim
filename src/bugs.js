@@ -247,9 +247,9 @@
     try {
         document.importNode(e);
     } catch (e) {
-        if (e.message === "Argument not optional" ||
-            e.message === "Not enough arguments" ||
-            e.message === "WRONG_ARGUMENTS_ERR"
+        if (e.number === -2147418113 ||//e.message === "Argument not optional" // IE returns the message in a local language that's why it doesn't work
+            e.result === 2153185281 ||//e.message === "Not enough arguments" // FF
+            e.code === 6//e.message === "WRONG_ARGUMENTS_ERR" // Opera
         ) {
             var importNode = document.importNode;
             document.importNode = function (node, bool) {
@@ -269,7 +269,8 @@
         el.ownerDocument = 42;
     } catch (e) {
         // IE8 Srs? Whitespace in error messages. FFFFFFFFFFFF
-        if (e.message === "Member not found.\r\n") {
+        //if (e.message === "Member not found.\r\n") { // IE returns the message in a local language that's why it doesn't work
+		if (e.number === -2147352573) {
             var pd = Object.getOwnPropertyDescriptor(Element.prototype, "ownerDocument");
             var ownerDocument = pd.get;
             Object.defineProperty(Element.prototype, "ownerDocument", {
