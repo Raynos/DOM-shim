@@ -1,1 +1,0 @@
-domShim.common.EventTarget = {};
