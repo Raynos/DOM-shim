@@ -247,7 +247,7 @@
     try {
         document.importNode(e);
     } catch (e) {
-        if (e.number === -2147418113 ||//e.message === "Argument not optional" // IE выводит сообщения на локальном языке, поэтому это не сработает
+        if (e.number === -2147418113 ||//e.message === "Argument not optional" // IE returns the message in a local language that's why it doesn't work
             e.result === 2153185281 ||//e.message === "Not enough arguments" // FF
             e.code === 6//e.message === "WRONG_ARGUMENTS_ERR" // Opera
         ) {
