@@ -1,5 +1,7 @@
 # DOM-shim
 
+Massive refactor in progress: See [dev][40]
+
 ## About
 
 Normalizing the DOM across all modern browsers.
@@ -52,3 +54,5 @@ Bonus:
   [30]: http://raynos.org/blog/10/DOM-Libraries
   [31]: http://raynos.org/blog/8/DOM-Extension-is-not-always-evil
   [32]: http://raynos.org/blog/11/Native-Custom-events-made-easy
+  
+  [40]: https://github.com/Raynos/DOM-shim/tree/dev
