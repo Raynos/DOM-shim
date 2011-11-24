@@ -84,6 +84,7 @@ suites["test Events"] = {
             }
         };
         window.addEventListener("magic", handler);
+        console.log("dispatching");
         window.dispatchEvent(e);
         document.documentElement.firstChild.dispatchEvent(e);
         t.done();
@@ -100,6 +101,7 @@ suites["test Events"] = {
             document.removeEventListener("someEv", handler);
         }
         document.addEventListener("someEv", handler);
+        console.log("dispatching");
         document.dispatchEvent(e);
         t.done();
     }

@@ -1,0 +1,10 @@
+{
+	"name": "DOM-shim",
+    "version": "0.0.1",
+    "description": "DOM4 emulation",
+    "private": true,
+    "devDependencies": {
+    	"nodeunit": "0.6.4",
+    	"modul8": "0.13.0"
+    }
+}
