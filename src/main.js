@@ -9,7 +9,10 @@ Object.keys(shims).forEach(function _eachShim(name) {
 	}
 	delete shim.interface;
 	var proto = constructor.prototype;
-	
+	if (shim.prototype) {
+		proto = constructor.prototype = shim.prototype;
+		delete shim.prototype;
+	}
 
 	if (shim.hasOwnProperty("constructor")) {
 		window[name] = constructor = shim.constructor;

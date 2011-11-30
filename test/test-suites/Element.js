@@ -61,7 +61,7 @@ suites["test Element"] = {
     },
     "test getElementsByClassName": function (t) {
         var e = createElement();
-        var els = toArray(e.getElementsByClassName("divo"));
+        var els = e.getElementsByClassName("divo");
         t.equal(els.length, 2, "size is incorrect");
         t.notEqual(els.indexOf(e.childNodes[1]), -1, 
             "does not contain div1");

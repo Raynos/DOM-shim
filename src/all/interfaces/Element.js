@@ -1,4 +1,4 @@
-var DOMTokenList = require("shims::interfaces/DOMTokenList").constructor;
+var DOMTokenList = require("all::interfaces/DOMTokenList").constructor;
 
 module.exports = {
 	parentElement: {

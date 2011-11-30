@@ -6,7 +6,7 @@ window.makeNodes = function () {
 		"txt": document.createTextNode(""),
 		"com": document.createComment(""),
 		"doc": document,
-		"doctype": document.implementation.createDocumentType("html5", "", ""),
+		"doctype": document.implementation.createDocumentType("html5", "", ""), 
 		"docfrag": document.createDocumentFragment()
 	};
 };

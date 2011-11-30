@@ -168,12 +168,6 @@ suites["Test Node"] = {
 		t.equal(clone.isEqualNode(nodes.el), true, "the clone is the same");
 		t.done(); 
 	},
-	"test isSameNode": function (t) {
-		var nodes = makeNodes();
-		t.equal(nodes.txt.isSameNode(nodes.el), false, "nodes should be different");
-		t.equal(nodes.el.isSameNode(nodes.el), true, "nodes should be the same");
-		t.done();
-	},
 	"test isEqualNode": function (t) {
 		var nodes = makeNodes();
 		var clone = nodes.el.cloneNode();

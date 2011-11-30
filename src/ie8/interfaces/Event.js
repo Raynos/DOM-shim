@@ -1,7 +1,7 @@
 var pd = require("utils::pd"),
 	Event = require("all::interfaces/Event");
 
-module.exports = pd.make(Event, {
+module.exports = pd.extend(Event, {
 	initEvent: {
 		value: initEvent
 	}

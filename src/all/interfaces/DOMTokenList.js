@@ -28,7 +28,7 @@ function fixIndex(clist, list) {
 }
 
 function handleErrors(token) {
-    if (token === "") {
+    if (token === "" || token === undefined) {
         throwDOMException(DOMException.SYNTAX_ERR);
     }
     // TODO: test real space chacters

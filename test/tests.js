@@ -248,7 +248,7 @@ suites["test Document"] = {
     },
     "test adoptNode": function (t) {
         var e = document.createElement("div");
-        document.adoptNode(e);
+        document.adoptNode(e);    
         t.equal(document, e.ownerDocument, "owner Document is not set");
         t.done();
     },
@@ -333,7 +333,7 @@ suites["test Element"] = {
     },
     "test getElementsByClassName": function (t) {
         var e = createElement();
-        var els = toArray(e.getElementsByClassName("divo"));
+        var els = e.getElementsByClassName("divo");
         t.equal(els.length, 2, "size is incorrect");
         t.notEqual(els.indexOf(e.childNodes[1]), -1, 
             "does not contain div1");
@@ -675,12 +675,6 @@ suites["Test Node"] = {
 		t.equal(clone.isEqualNode(nodes.el), true, "the clone is the same");
 		t.done(); 
 	},
-	"test isSameNode": function (t) {
-		var nodes = makeNodes();
-		t.equal(nodes.txt.isSameNode(nodes.el), false, "nodes should be different");
-		t.equal(nodes.el.isSameNode(nodes.el), true, "nodes should be the same");
-		t.done();
-	},
 	"test isEqualNode": function (t) {
 		var nodes = makeNodes();
 		var clone = nodes.el.cloneNode();
@@ -698,7 +692,7 @@ window.makeNodes = function () {
 		"txt": document.createTextNode(""),
 		"com": document.createComment(""),
 		"doc": document,
-		"doctype": document.implementation.createDocumentType("html5", "", ""),
+		"doctype": document.implementation.createDocumentType("html5", "", ""), 
 		"docfrag": document.createDocumentFragment()
 	};
 };

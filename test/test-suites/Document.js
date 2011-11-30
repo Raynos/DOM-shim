@@ -82,7 +82,7 @@ suites["test Document"] = {
     },
     "test adoptNode": function (t) {
         var e = document.createElement("div");
-        document.adoptNode(e);
+        document.adoptNode(e);    
         t.equal(document, e.ownerDocument, "owner Document is not set");
         t.done();
     },

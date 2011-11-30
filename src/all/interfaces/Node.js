@@ -1,7 +1,8 @@
 module.exports = {
 	contains: {
 		value: contains
-	}
+	},
+    interface: window.Element
 }
 
 function contains(other) {

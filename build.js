@@ -10,6 +10,10 @@ var srcPath = path.join(__dirname, "src");
 
 fs.readdir(srcPath, handleDirectoryRead.bind(null, srcPath));
 
+var srcPath = path.join(__dirname, "test");
+
+fs.readdir(srcPath, handleDirectoryRead.bind(null, srcPath));
+
 function handleDirectoryRead(srcPath, err, files) {
 	files.forEach(handleFile.bind(null, srcPath));	
 }
@@ -37,6 +41,7 @@ function build() {
 		modul8("./src/main.js")
 			.domains({ 
 				shims: './src/all/',
+				all: './src/all/',
 				utils: './src/utils/'
 			})
 			.compile("./lib/DOM-shim.js");

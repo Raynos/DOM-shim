@@ -209,7 +209,7 @@
     exports(pd);
 
 })(function (data) {
-    if (typeof module !== "undefined" && module.exports) {
+    if (typeof module !== "undefined") {
         module.exports = data;
     } else {
         window.pd = data;
