@@ -19,8 +19,8 @@ window.toArray = function (obj) {
 	return arr;
 };
 
-require("Document");
-require("Element");
-require("Event");
-require("EventTarget");
-require("Node");
+require("./Document");
+require("./Element");
+require("./Event");
+require("./EventTarget");
+require("./Node");

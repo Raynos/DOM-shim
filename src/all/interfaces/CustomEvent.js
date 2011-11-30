@@ -1,5 +1,10 @@
-function _constructor(type, dict) {
-	var e = document.createEvent("CustomEvent");
+module.exports = {
+	constructor: constructor,
+    interface: window.Event
+};
+
+function constructor(type, dict) {
+    var e = document.createEvent("CustomEvent");
     dict = dict || {};
     dict.detail = dict.detail || null;
     dict.bubbles = dict.bubbles || false;
@@ -12,7 +17,3 @@ function _constructor(type, dict) {
     }
     return e;
 }
-
-module.exports = {
-	constructor: _constructor
-};

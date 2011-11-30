@@ -1,4 +1,17 @@
-function _addEventListener(type, listener, capture) {
+module.exports = {
+	addEventListener: {
+		value: addEventListener
+	},
+	dispatchEvent: {
+		value: dispatchEvent
+	},
+	removeEventListener: {
+		value: removeEventListener
+	},
+    interface: window.Element
+};
+
+function addEventListener(type, listener, capture) {
     var that = this;
 
     if (that.attachEvent) {
@@ -10,31 +23,31 @@ function _addEventListener(type, listener, capture) {
         }
         var evs = that.__domShimEvents__;
         if (!evs[type]) {
-        	evs[type] = [];
+            evs[type] = [];
         } else {
-        	var alreadyBound = evs[type].some(function (tuple) {
-        		if (tuple[0] === listener && tuple[1] === cb) {
-        			return true;
-        		}
-        	});
-        	if (alreadyBound) {
-        		return;
-        	}
+            var alreadyBound = evs[type].some(function (tuple) {
+                if (tuple[0] === listener && tuple[1] === cb) {
+                    return true;
+                }
+            });
+            if (alreadyBound) {
+                return;
+            }
         }
         evs[type].push([listener, cb]);
         that.attachEvent("on" + type, cb);
     }
 }
 
-function _dispatchEvent(ev) {
-	var that = this;
+function dispatchEvent(ev) {
+    var that = this;
 
     function handler(event) {
         if (event.propertyName === "___domShim___") {
             if (that.__domShimEvents__) {
-            	that.__domShimEvents__[ev.type].forEach(function (tuple) {
-            		tuple[0].call(that, ev);
-            	});
+                that.__domShimEvents__[ev.type].forEach(function (tuple) {
+                    tuple[0].call(that, ev);
+                });
             }
             that.detachEvent("onpropertychange", handler);
         }
@@ -51,8 +64,8 @@ function _dispatchEvent(ev) {
                 that.___domShim___ = 42;
             // IE8 says no if its not in the DOM.
             } else if (e.message === "Unspecified error.") {
-            	var display = this.style.display;
-            	this.style.display = "none";
+                var display = this.style.display;
+                this.style.display = "none";
                 document.body.appendChild(this);
                 this.dispatchEvent(ev);
                 document.body.removeChild(this);
@@ -63,12 +76,12 @@ function _dispatchEvent(ev) {
     }
 }
 
-function _removeEventListener(type, listener, capture) {
+function removeEventListener(type, listener, capture) {
     var that = this;
 
-	var list = that.__domShimEvents__;
+    var list = that.__domShimEvents__;
     if (that.detachEvent && list) {
-    	var arr = list[type];
+        var arr = list[type];
         for (var i = 0, len = arr.length; i < len; i++) {
             var tuple = arr[i];
             if (tuple[0] === listener) {
@@ -78,16 +91,4 @@ function _removeEventListener(type, listener, capture) {
             }
         }
     }
-}
-
-module.exports = {
-	addEventListener: {
-		value: _addEventListener
-	},
-	dispatchEvent: {
-		value: _dispatchEvent
-	},
-	removeEventListener: {
-		value: _removeEventListener
-	}
 }

@@ -69,13 +69,11 @@ suites["test Events"] = {
         t.done();
     },
     "test CustomEvent constructor": function (t) {
-        t.expect(3);
+        t.expect(2);
         var called = 0;
         var e = new CustomEvent("magic", {
             bubbles: true
         });
-        t.equal(Object.getPrototypeOf(e), CustomEvent.prototype, 
-            "prototype is not as expected");
         t.equal(e.type, "magic", "type not set correctly");
         var handler = function () {
             if (++called === 2) {
@@ -84,7 +82,6 @@ suites["test Events"] = {
             }
         };
         window.addEventListener("magic", handler);
-        console.log("dispatching");
         window.dispatchEvent(e);
         document.documentElement.firstChild.dispatchEvent(e);
         t.done();
@@ -101,7 +98,6 @@ suites["test Events"] = {
             document.removeEventListener("someEv", handler);
         }
         document.addEventListener("someEv", handler);
-        console.log("dispatching");
         document.dispatchEvent(e);
         t.done();
     }

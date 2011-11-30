@@ -1,38 +1,17 @@
-var shims = require("interfaces"),
-	utils = require("./utils");
-
-var getRealInterface = (function () {
-
-	function getFallbackInterface(name) {
-		var interface;
-		if (name === "Node") {
-			interface = window.Element;
-		} else if (name === "CustomEvent") {
-			interface = window.Event;
-		} else if (name === "EventTarget") {
-			interface = window.Element;
-		} else if (name === "Document") {
-			interface = window.HTMLDocument;
-		}
-		return interface;
-	}
-
-	return function getRealInterface(name) {
-		var interface = window[name];
-		if (interface === undefined) {
-			interface = getFallbackInterface(name);
-		}
-		return interface;
-	}
-	
-}());
+var shims = require("shims::interfaces"),
+	utils = require("utils");
 
 Object.keys(shims).forEach(function _eachShim(name) {
-	var constructor = getRealInterface(name);
-	var proto = constructor.prototype;
 	var shim = shims[name];
+	var constructor = window[name];
+	if (!constructor) {
+		 constructor = window[name] = shim.interface;
+	}
+	delete shim.interface;
+	var proto = constructor.prototype;
+	
 
-	if (shim.constructor) {
+	if (shim.hasOwnProperty("constructor")) {
 		window[name] = constructor = shim.constructor;
 		shim.constructor.prototype = proto;
 		delete shim.constructor;
@@ -41,4 +20,4 @@ Object.keys(shims).forEach(function _eachShim(name) {
 	utils.addShimToInterface(shim, proto, constructor);
 });
 
-require("./bugs");
+require("shims::bugs")();

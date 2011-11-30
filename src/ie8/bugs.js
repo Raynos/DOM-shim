@@ -1,5 +1,9 @@
-var utils = require("./utils.js"),
-	eventTargetShim = require("interfaces/EventTarget");
+var utils = require("utils"),
+	eventTargetShim = require("shims::interfaces/EventTarget");
+
+module.exports = run;
+
+function run() {
 
 // IE8 Document does not inherit EventTarget
 (function () {
@@ -20,3 +24,7 @@ var utils = require("./utils.js"),
         window.dispatchEvent = document.dispatchEvent.bind(document);
     }
 })();
+
+require("all::bugs")();
+
+}

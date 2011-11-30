@@ -5,6 +5,7 @@
     "private": true,
     "devDependencies": {
     	"nodeunit": "0.6.4",
+    	"watch": "0.4.0",
     	"modul8": "0.13.0"
     }
 }

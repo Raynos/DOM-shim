@@ -5,7 +5,12 @@
     <link rel="stylesheet" href="resources/nodeunit.css" type="text/css" />
     <script src="resources/es5-shim.js"></script>
     <script src="resources/nodeunit.js"></script>
-    <script src="../lib/DOM-shim.js"></script>
+    <!-- [if IE 8]>
+      <script src="../lib/DOM-shim-ie8.js"></script>
+    <![endif]-->
+    <!-- [if !IE]> -->
+      <script src="../lib/DOM-shim.js"></script>
+    <!-- <![endif]-->
     <script>
       window.suites = {};
     </script>
