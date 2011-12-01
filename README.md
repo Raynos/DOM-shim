@@ -2,6 +2,8 @@
 
 Massive refactor in progress: See [dev][40]
 
+## Status: alpha
+
 ## About
 
 Normalizing the DOM across all modern browsers.
