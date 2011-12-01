@@ -52,6 +52,8 @@ suites["test Events"] = {
         var ev = document.createEvent("Event");
         ev.initEvent("keyup", false, false);
         document.dispatchEvent(ev);
+        document.removeEventListener("click", _handler3);
+        document.removeEventListener("keyup", _handler3);
         t.done();
     },
     "test Event constructor": function (t) {

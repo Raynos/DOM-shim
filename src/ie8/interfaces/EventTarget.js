@@ -18,6 +18,8 @@ module.exports = {
 function addEventListener(type, listener, capture) {
     if (listener === null) return;
 
+    var that = this;
+
     capture = capture || false;
 
     var store = dataManager.getStore(this);
@@ -36,12 +38,40 @@ function addEventListener(type, listener, capture) {
     var events = store[eventsString];
 
     if (!events[type]) {
-        events[type] = [];
+        events[type] = {};
+        events[type].listeners = [];
     }
 
-    var listenerArray = events[type];
+    var typeObject = events[type];
+
+    var listenerArray = typeObject.listeners;
     if (listenerArray.indexOf(listener) === -1) {
         listenerArray.push(listener);
+    } else {
+        return;
+    }
+
+    if (this.attachEvent) {
+        try {
+            this.attachEvent("on" + type, handler);
+            
+            if (!typeObject.ieHandlers) {
+                typeObject.ieHandlers = [];
+            }
+
+            var index = listenerArray.length - 1;
+
+            typeObject.ieHandlers[index] = handler;
+
+        } catch (e) {
+            /* don't care. can't attach so can't be fired */
+        }
+    }
+
+    function handler() {
+        var ev = document.createEvent("event");
+        ev.initEvent(type, true, true);
+        that.dispatchEvent(ev);
     }
 }
 
@@ -61,12 +91,29 @@ function removeEventListener(type, listener, capture) {
 
     if (!events) return;
 
-    var listenerArray = events[type];
+    var typeObject = events[type];
 
-    if (!listenerArray) return;
+    if (!typeObject) return;
+
+    var listenerArray = typeObject.listeners;
 
     var index = listenerArray.indexOf(listener);
     listenerArray.splice(index, 1);
+
+    if (this.detachEvent) {
+        try {
+            var ieHandlers = typeObject.ieHandlers;
+
+            var handler = ieHandlers[index];
+
+            this.detachEvent("on" + type, handler);    
+
+            ieHandlers.splice(index, 1);
+        } catch (e) {
+            /* don't care. Can't detach what hasn't been attached */
+        }
+        
+    }
 }
 
 function dispatchEvent(event) {
@@ -129,9 +176,11 @@ function invokeListeners(event, elem) {
     if (event.eventPhase !== Event.CAPTURING_PHASE) {
         var events = store["bubbleEvents"];
         if (events) {
-            var listenerArray = events[event.type];
+            var typeObject = events[event.type];
 
-            if (listenerArray) {
+            if (typeObject) {
+                var listenerArray = typeObject.listeners
+
                 push.apply(listeners, listenerArray);
             }
         }
@@ -139,9 +188,11 @@ function invokeListeners(event, elem) {
     if (event.eventPhase !== Event.BUBBLING_PHASE) {
         var events = store["captureEvents"];
         if (events) {
-            var listenerArray = events[event.type];
+            var typeObject = events[event.type];
 
-            if (listenerArray) {
+            if (typeObject) {
+                var listenerArray = typeObject.listeners
+
                 push.apply(listeners, listenerArray);
             }
         }
