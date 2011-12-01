@@ -14,6 +14,8 @@ Object.keys(shims).forEach(function _eachShim(name) {
 		delete shim.prototype;
 	}
 
+	console.log("adding interface ", name);
+
 	if (shim.hasOwnProperty("constructor")) {
 		window[name] = constructor = shim.constructor;
 		shim.constructor.prototype = proto;

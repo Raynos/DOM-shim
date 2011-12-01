@@ -1,3 +1,7 @@
+var dataManager = require("utils::dataManager"),
+    throwDOMException = require("utils::index").throwDOMException,
+    push = [].push;
+
 module.exports = {
 	addEventListener: {
 		value: addEventListener
@@ -12,83 +16,144 @@ module.exports = {
 };
 
 function addEventListener(type, listener, capture) {
-    var that = this;
+    if (listener === null) return;
 
-    if (that.attachEvent) {
-        var cb = function (ev) {
-            listener.call(that, ev || window.event);
-        };
-        if (!that.__domShimEvents__) {
-            that.__domShimEvents__ = {};
-        }
-        var evs = that.__domShimEvents__;
-        if (!evs[type]) {
-            evs[type] = [];
-        } else {
-            var alreadyBound = evs[type].some(function (tuple) {
-                if (tuple[0] === listener && tuple[1] === cb) {
-                    return true;
-                }
-            });
-            if (alreadyBound) {
-                return;
-            }
-        }
-        evs[type].push([listener, cb]);
-        that.attachEvent("on" + type, cb);
-    }
-}
+    capture = capture || false;
 
-function dispatchEvent(ev) {
-    var that = this;
+    var store = dataManager.getStore(this);
 
-    function handler(event) {
-        if (event.propertyName === "___domShim___") {
-            if (that.__domShimEvents__) {
-                that.__domShimEvents__[ev.type].forEach(function (tuple) {
-                    tuple[0].call(that, ev);
-                });
-            }
-            that.detachEvent("onpropertychange", handler);
-        }
+    var eventsString;
+    if (capture) {
+        eventsString = "captureEvents";
+    } else {
+        eventsString = "bubbleEvents";
     }
 
-    if (this.fireEvent) {
-        var ret;
-        try {
-            ret = this.fireEvent("on" + ev.type);
-        } catch (e) {
-            // IE8 fireEvent on custom property fails
-            if (e.message === "Invalid argument.") {
-                that.attachEvent("onpropertychange", handler);
-                that.___domShim___ = 42;
-            // IE8 says no if its not in the DOM.
-            } else if (e.message === "Unspecified error.") {
-                var display = this.style.display;
-                this.style.display = "none";
-                document.body.appendChild(this);
-                this.dispatchEvent(ev);
-                document.body.removeChild(this);
-                this.style.display = display;
-            }
-        }
-        return ret;
+    if (!store[eventsString]) {
+        store[eventsString] = {};
+    }
+
+    var events = store[eventsString];
+
+    if (!events[type]) {
+        events[type] = [];
+    }
+
+    var listenerArray = events[type];
+    if (listenerArray.indexOf(listener) === -1) {
+        listenerArray.push(listener);
     }
 }
 
 function removeEventListener(type, listener, capture) {
-    var that = this;
+    capture = capture || false;
 
-    var list = that.__domShimEvents__;
-    if (that.detachEvent && list) {
-        var arr = list[type];
-        for (var i = 0, len = arr.length; i < len; i++) {
-            var tuple = arr[i];
-            if (tuple[0] === listener) {
-                that.detachEvent("on" + type, tuple[1]);
-                arr.splice(i, 1);
-                break;
+    var store = dataManager.getStore(this);
+
+    var eventsString;
+    if (capture) {
+        eventsString = "captureEvents";
+    } else {
+        eventsString = "bubbleEvents";
+    }
+
+    var events = store[eventsString];
+
+    if (!events) return;
+
+    var listenerArray = events[type];
+
+    if (!listenerArray) return;
+
+    var index = listenerArray.indexOf(listener);
+    listenerArray.splice(index, 1);
+}
+
+function dispatchEvent(event) {
+    if (event._dispatch === true || event._initialized === true) {
+        throwDOMException(DOMException.INVALID_STATE_ERR);
+    }
+
+    event.isTrusted = false;
+
+    dispatch(this, event);
+}
+
+function dispatch(elem, event) {
+    var invokeListenerForEvent = invokeListeners.bind(null, event);
+
+    event._dispatch = true;
+
+    event.target = elem;
+
+    if (elem.parentNode) {
+        var eventPath = [];
+        var parent = elem.parentNode;
+        while (parent) {
+            eventPath.unshift(parent);
+            parent = parent.parentNode;
+        }
+
+        event.eventPhase = Event.CAPTURING_PHASE;
+
+        eventPath.forEach(invokeListenerForEvent);
+
+        event.eventPhase = Event.AT_TARGET;
+
+        invokeListenerForEvent(event.target);
+
+        if (event.bubbles) {
+            eventPath = eventPath.reverse();
+            event.eventPhase = Event.BUBBLING_PHASE;
+            eventPath.forEach(invokeListenerForEvent);
+        }
+    } else {
+        invokeListenerForEvent(event.target);
+    }
+
+    event._dispatch = false;
+
+    event.eventPhase = Event.AT_TARGET;
+
+    event.currentTarget = null;
+
+    return !event._canceled;
+}
+
+function invokeListeners(event, elem) {
+    var store = dataManager.getStore(elem);
+
+    event.currentTarget = elem;
+
+    var listeners = [];
+    if (event.eventPhase !== Event.CAPTURING_PHASE) {
+        var events = store["bubbleEvents"];
+        if (events) {
+            var listenerArray = events[event.type];
+
+            if (listenerArray) {
+                push.apply(listeners, listenerArray);
             }
         }
+    } 
+    if (event.eventPhase !== Event.BUBBLING_PHASE) {
+        var events = store["captureEvents"];
+        if (events) {
+            var listenerArray = events[event.type];
+
+            if (listenerArray) {
+                push.apply(listeners, listenerArray);
+            }
+        }
+    }
+
+    listeners.some(invokeListener);
+
+    function invokeListener(listener) {
+        if (event._stopImmediatePropagation) {
+            return true;
+        }
+        // DOM4 ED says currentTarget, DOM4 WD says target
+        listener.call(event.currentTarget, event);
     }
 }

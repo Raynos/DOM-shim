@@ -1,8 +1,8 @@
-var Node = require("all::interfaces/Node"),
+var nodeShim = require("all::interfaces/Node"),
     recursivelyWalk = require("utils::index").recursivelyWalk,
 	pd = require("utils::pd");
 
-module.exports = pd.extend(Node, {
+module.exports = pd.extend(nodeShim, {
 	constants: {
 	    "ELEMENT_NODE": 1,
 	    "ATTRIBUTE_NODE": 2,
@@ -116,25 +116,66 @@ function setTextContent(value) {
     }
 }
 
+function testNodeForComparePosition(node, other) {
+    if (node === other) {
+        return true;
+    }
+}
+
 function compareDocumentPosition(other) {
-    var ret = 0;
-    if (this.contains) {
-        if (this !== other && this.contains(other)) {
-            ret += 16;
+    function identifyWhichIsFirst(node) {
+        if (node === other) {
+            return "other";
+        } else if (node === reference) {
+            return "reference";
         }
-        if (this !== other && other.contains(this)) {
-            ret += 8;
-        }
-        if (this.sourceIndex >= 0 && other.sourceIndex >= 0) {
-            if (this.sourceIndex < other.sourceIndex) {
-                ret += 4;
-            }
-            if (this.sourceIndex > other.sourceIndex) {
-                ret += 2;
-            }
-        } else {
-            ret += 1;
-        }
-    } 
-    return ret;
+    }
+
+    var reference = this,
+        referenceTop = this,
+        otherTop = other;
+
+    if (this === other) {
+        return 0;
+    }
+    while (referenceTop.parentNode) {
+        referenceTop = referenceTop.parentNode;
+    }
+    while (otherTop.parentNode) {
+        otherTop = otherTop.parentNode;
+    }
+
+    if (referenceTop !== otherTop) {
+        return Node.DOCUMENT_POSITION_DISCONNECTED;
+    }
+
+    var children = reference.childNodes;
+    var ret = recursivelyWalk(
+        children,
+        testNodeForComparePosition.bind(null, other)
+    );
+    if (ret) {
+        return Node.DOCUMENT_POSITION_CONTAINED_BY +
+            Node.DOCUMENT_POSITION_FOLLOWING;
+    }
+
+    var children = other.childNodes;
+    var ret = recursivelyWalk(
+        children, 
+        testNodeForComparePosition.bind(null, reference)
+    );
+    if (ret) {
+        return Node.DOCUMENT_POSITION_CONTAINS +
+            Node.DOCUMENT_POSITION_PRECEDING;
+    }
+
+    var ret = recursivelyWalk(
+        [referenceTop],
+        identifyWhichIsFirst
+    );
+    if (ret === "other") {
+        return Node.DOCUMENT_POSITION_PRECEDING;
+    } else {
+        return Node.DOCUMENT_POSITION_FOLLOWING;
+    }
 }

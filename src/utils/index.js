@@ -29,14 +29,14 @@ function recursivelyWalk(nodes, cb) {
         if (ret) {
             return ret;
         }
-        if (node.childNodes && node.childNodes.length > 0) {
+        if (node.childNodes && node.childNodes.length) {
             var ret = recursivelyWalk(node.childNodes, cb);
             if (ret) {
                 return ret;
             }
         }
     }
-};
+}
 
 function throwDOMException(code) {
     var ex = Object.create(DOMException.prototype);
