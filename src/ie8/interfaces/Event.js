@@ -9,6 +9,18 @@ module.exports = pd.extend(Event, {
 	},
 	initEvent: {
 		value: initEvent
+	},
+	stopPropagation: {
+		value: stopPropagation
+	},
+	stopImmediatePropagation: {
+		value: stopImmediatePropagation
+	},
+	preventDefault: {
+		value: preventDefault
+	},
+	defaultPrevented: {
+		get: getDefaultPrevented
 	}
 });
 
@@ -18,4 +30,21 @@ function initEvent(type, bubbles, cancelable) {
     this.target = null;
     this.bubbles = bubbles;
     this.cancelable = cancelable;
+    this.timeStamp = Date.now();
+}
+
+function stopPropagation() {
+	this._stopPropagation = true;
+}
+
+function stopImmediatePropagation() {
+	this._stopImmediatePropagation = true;
+}
+
+function preventDefault() {
+	this._canceled = true;
+}
+
+function getDefaultPrevented() {
+	return this._canceled;
 }

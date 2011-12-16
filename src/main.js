@@ -1,8 +1,8 @@
-var shims = require("shims::interfaces"),
+var shims = require("data::shims"),
 	utils = require("utils");
 
-Object.keys(shims).forEach(function _eachShim(name) {
-	var shim = shims[name];
+shims.forEach(function _eachShim(name) {
+	var shim = require("interfaces::" + name);
 	var constructor = window[name];
 	if (!constructor) {
 		 constructor = window[name] = shim.interface;
@@ -23,6 +23,6 @@ Object.keys(shims).forEach(function _eachShim(name) {
 	}
 
 	utils.addShimToInterface(shim, proto, constructor);
-});
 
-require("shims::bugs")();
+	require("bugs::" + name)();
+});

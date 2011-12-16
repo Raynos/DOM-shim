@@ -1,0 +1,3 @@
+suites["test xhr"] = {
+	
+};

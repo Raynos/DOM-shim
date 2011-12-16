@@ -1,11 +1,12 @@
 {
 	"name": "DOM-shim",
-    "version": "0.0.1",
+    "version": "0.1.5",
     "description": "DOM4 emulation",
     "private": true,
     "devDependencies": {
     	"nodeunit": "0.6.4",
     	"watch": "0.4.0",
+    	"express": "2.5.1",
     	"modul8": "0.13.0"
     }
 }

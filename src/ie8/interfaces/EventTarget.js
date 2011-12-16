@@ -1,4 +1,5 @@
 var dataManager = require("utils::dataManager"),
+    pd = require("utils::pd"),
     throwDOMException = require("utils::index").throwDOMException,
     push = [].push;
 
@@ -17,8 +18,6 @@ module.exports = {
 
 function addEventListener(type, listener, capture) {
     if (listener === null) return;
-
-    var that = this;
 
     capture = capture || false;
 
@@ -68,10 +67,20 @@ function addEventListener(type, listener, capture) {
         }
     }
 
-    function handler() {
+    function handler(event) {
         var ev = document.createEvent("event");
+
+        if (event) {
+            pd.extend(ev, event);
+        }
+
         ev.initEvent(type, true, true);
-        that.dispatchEvent(ev);
+        event.srcElement.dispatchEvent(ev);
+
+        event.cancelBubble = true;
+        if (ev.defaultPrevented) {
+            event.returnValue = false;
+        }
     }
 }
 
@@ -168,6 +177,10 @@ function dispatch(elem, event) {
 }
 
 function invokeListeners(event, elem) {
+    if (event._stopPropagation) {
+        return;
+    }
+
     var store = dataManager.getStore(elem);
 
     event.currentTarget = elem;

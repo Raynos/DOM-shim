@@ -38,21 +38,43 @@ function build() {
 		modul8("./test/test-suites/main.js")
 			.compile("./test/tests.js");
 
-		modul8("./src/main.js")
-			.domains({ 
-				shims: './src/all/',
-				all: './src/all/',
-				utils: './src/utils/'
-			})
-			.compile("./lib/DOM-shim.js");
+		modul8("./test/xhr-suites/main.js")
+			.compile("./test/xhr-tests.js");
 
 		modul8("./src/main.js")
 			.domains({ 
-				shims: './src/ie8/',
+				interfaces: './src/all/interfaces',
+				bugs: './src/all/bugs',
 				all: './src/all/',
 				utils: './src/utils/'
 			})
-			.compile('./lib/DOM-shim-ie8.js');
+			.data()
+				.add('shims', [
+					'CustomEvent', 'Element', 'Event', 'Node'
+				])
+			.compile("./lib/DOM-shim.js")
+			.compile("./test/DOM-shim.js");
+
+		modul8("./src/main.js")
+			.domains({ 
+				interfaces: './src/ie8/interfaces',
+				bugs: './src/ie8/bugs',
+				all: './src/all/',
+				utils: './src/utils/'
+			})
+			.data()
+				.add('shims', [
+					'CustomEvent',
+					'Document', 
+					'DOMException', 
+					'DOMImplementaton',
+					'Element', 
+					'Event', 
+					'EventTarget', 
+					'Node'
+				])
+			.compile('./lib/DOM-shim-ie8.js')
+			.compile("./test/DOM-shim-ie8.js");
 
 	} catch (e) {
 		console.log("compiler error", e);
