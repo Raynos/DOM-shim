@@ -1,3 +1,5 @@
+//http://www.w3.org/TR/html5/common-dom-interfaces.html#domsettabletokenlist-0
+
 var utils = require("utils::index"),
 	DOMTokenList = require("interfaces/DOMTokenList").constructor;
 
