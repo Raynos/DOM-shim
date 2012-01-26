@@ -1,8 +1,6 @@
 var utils = require("utils::index"),
 	DOMTokenList = require("interfaces/DOMTokenList").constructor;
 
-var throwDOMException = utils.throwDOMException;
-
 module.exports = {
     constructor: DOMSettableTokenList
 };
