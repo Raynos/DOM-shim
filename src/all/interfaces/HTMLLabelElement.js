@@ -1,6 +1,7 @@
-var recursivelyWalk = require("index::utils/recursivelyWalk");
+var recursivelyWalk = require(".../utils").recursivelyWalk;
 
 module.exports = {
+	interface: window.HTMLLabelElement || window.Element || window.Node,
 	control: {
 		get: getControl
 	}
@@ -14,8 +15,8 @@ function getControl() {
 //    if(this.nodeName !== "LABEL")
 //		return void 0;
 	
-	if(thisObj.getAttribute("for") !== null)//hasAttribute
-		return document.getElementById(thisObj.htmlFor);
+	if(this.getAttribute("for") !== null)//hasAttribute
+		return document.getElementById(this.htmlFor);
 	
 	var /**
 		 * @type {HTMLInputElement|NULL} result
