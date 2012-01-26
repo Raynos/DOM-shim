@@ -18,15 +18,10 @@ function getControl() {
 	if(this.getAttribute("for") !== null)//hasAttribute
 		return document.getElementById(this.htmlFor);
 	
-	var /**
-		 * @type {HTMLInputElement|NULL} result
-		 */
-		result = recursivelyWalk(this.childNodes,
+	return recursivelyWalk(this.childNodes,
 			function(el) {
 				if(~["INPUT", "BUTTON", "KEYGEN", "METER", "OUTPUT", "PROGRESS", "TEXTAREA", "SELECT"].indexOf(el.nodeName))
 					return el
 			}
 		) || null;
-		
-	return result;
 }
