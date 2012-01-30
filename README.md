@@ -40,6 +40,8 @@ Bonus:
  - [DOM Extension not always evil][31]
  - [Native Custom Events made easy][32]
 
+## MIT Licenced
+
   [3]: http://raynos.github.com/DOM-shim/test/test.html
 
   [29]: https://github.com/Raynos/DOM-shim/wiki
