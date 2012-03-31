@@ -17,10 +17,10 @@
 <body>
   <div id="mocha"></div>
   <script>
-    (function() {
+    window.onload = function() {
         var r = mocha.run()
         r.globals(['require', 'features'])
-    }())
+    }
   </script>
 </body>
 </html>
