@@ -5,6 +5,7 @@
     "private": true,
     "devDependencies": {
         "browserify": "1.10.6",
-    	"mocha": "1.0.0"
+    	"mocha": "1.0.0",
+        "after": "0.3.3"
     }
 }

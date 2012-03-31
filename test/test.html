@@ -1,20 +1,26 @@
-<html>
+<!DOCTYPE html>
+<html data-feature="true">
 <head>
   <meta charset="utf-8">
   <title>Mocha Tests</title>
   <link rel="stylesheet" href="mocha.css" />
   <script src="mocha.js"></script>
   <script src="../feature/feature.js"></script>
-  <script>mocha.setup('tdd')</script>
   <script>
-    (function() {
-      mocha
-        .globals(['features']) // acceptable globals
-        .run()
-    }())
+    mocha.setup('tdd')
+    function assert(expr, msg) {
+      if (!expr) throw new Error(msg || 'failed');
+    }
   </script>
+  <script src="tests.js"></script>
 </head>
 <body>
   <div id="mocha"></div>
+  <script>
+    (function() {
+        var r = mocha.run()
+        r.globals(['require', 'features'])
+    }())
+  </script>
 </body>
 </html>
