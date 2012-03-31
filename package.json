@@ -4,8 +4,7 @@
     "description": "DOM4 emulation",
     "private": true,
     "devDependencies": {
-    	"nodeunit": "0.6.4",
-    	"watch": "0.4.0",
-    	"modul8": "0.13.0"
+        "browserify": "1.10.6",
+    	"mocha": "1.0.0"
     }
 }
